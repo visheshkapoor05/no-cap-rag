@@ -8,7 +8,7 @@
 Companion documents:
 - [`ANALOGY.md`](./ANALOGY.md) — the Research Office analogy every module docstring assumes
 - [`DECISIONS.md`](./DECISIONS.md) — every technology choice, why, and what was rejected
-- [`../Project_1_Advanced_RAG_PRD_Architecture.pdf`](../Project_1_Advanced_RAG_PRD_Architecture.pdf) — source-of-truth PRD (never edited; deviations live in DECISIONS.md)
+- [`../Project_1_Advanced_RAG_PRD_Architecture.pdf`](./Project_1_Advanced_RAG_PRD_Architecture.pdf) — source-of-truth PRD (never edited; deviations live in DECISIONS.md)
 - [`docs/architecture.jpg`](./docs/architecture.jpg) — system architecture
 
 ---

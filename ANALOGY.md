@@ -8,7 +8,7 @@ role in that office. This file is the single source of truth for the mapping
 — module/class docstrings reference it instead of re-explaining it inline,
 and `learnings/` notes are written against it.
 
-Source of truth for the system itself: `../Project_1_Advanced_RAG_PRD_Architecture.pdf`
+Source of truth for the system itself: `./Project_1_Advanced_RAG_PRD_Architecture.pdf`
 (V1 → V2 → V3 roadmap) — that file is never edited directly; deviations from
 it are logged in [DECISIONS.md](./DECISIONS.md) instead (e.g. Milvus in
 place of the PRD's suggested Qdrant/LanceDB). Update this file whenever a
