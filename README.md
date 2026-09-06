@@ -1,6 +1,10 @@
 # research-bureau
 
+![CI](https://github.com/VisheshKapoor05/research-bureau/actions/workflows/ci.yml/badge.svg)
+
 A production-oriented RAG system for retail policy Q&A — hybrid dense+BM25 retrieval, cross-encoder reranking, citation-grounded generation, claim verification, and honest abstention. Built and benchmarked end to end across V1→V2→V3.
+
+**What this isn't:** not a chat-with-your-PDFs demo. There's no generic document upload box — the corpus, retrieval strategy, and evaluation set are all purpose-built for one domain (retail policy Q&A) so that every design choice can be measured against real numbers instead of asserted.
 
 A public + synthetic corpus, retrieved with evidence, answered with citations, verified, and abstained from when the evidence doesn't hold up. Built in three shippable tiers: V1 → V2 → V3.
 See [`Project_1_Advanced_RAG_PRD_Architecture.pdf`](./Project_1_Advanced_RAG_PRD_Architecture.pdf)
