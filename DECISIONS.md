@@ -314,6 +314,42 @@ resolved by the same fix as) the earlier chunking-confound discussion.
 
 ---
 
+## D-012 · `main` stays README-only; milestone branches carry the analogy names
+
+**We're doing:** `main` holds nothing but the README, LICENSE, and repo
+hygiene files (`.gitignore`/`.dockerignore`) until a milestone is fully
+merged via PR — it does not track in-progress work the way it briefly did
+during P0. All active development happens on a milestone branch, and every
+milestone branch is named after the chapter of the office story it
+represents — not `feat/m1-corpus-ingestion`, but `feat/the-mailroom-opens`
+(the office receiving and filing its first real mail: ingestion, the
+Postgres registry, the ingest API, the CLI). Future milestones follow the
+same pattern — a short, evocative phrase from [ANALOGY.md](./ANALOGY.md)'s
+own vocabulary, not the milestone number.
+
+**Why:** two separate problems, one fix each, done together. (1) `main`
+already drifted once during P0 — 12 days of finished code sitting
+uncommitted/unprotected before repo setup actually happened (see the
+BLUEPRINT.md rebase note) — keeping `main` deliberately empty until a PR
+lands removes the temptation to treat it as a scratch space. (2) Generic
+branch names (`feat/m1-corpus-ingestion`) describe *what* a branch is;
+analogy names describe *where the project's own story is* at that point —
+reading the branch list top to bottom should read like a table of
+contents for the office's growth, the same reason each milestone card in
+the blueprint already carries an "🏢 In office terms" line.
+
+**Rejected:** keeping the numbered `feat/m1-corpus-ingestion` naming — it's
+not wrong, just a missed opportunity, since the analogy already exists and
+is already used everywhere else in the project's own documentation and
+code comments.
+
+**Caught by:** direct feedback, immediately after `feat/m1-corpus-ingestion`
+had already been created and pushed once — renamed to
+`feat/the-mailroom-opens` before anything merged, so no cleanup was needed
+beyond the rename itself.
+
+---
+
 ## Open questions
 
 Things deliberately not decided yet, with the milestone that will settle them.
