@@ -1,4 +1,4 @@
-# Research Bureau — Advanced RAG Build Blueprint
+# no-cap-rag — Advanced RAG Build Blueprint
 
 **Domain:** retail knowledge (public retail policies + synthetic retail enterprise documents)
 **Commitment:** V1 by **3 Oct 2026**, V2 by **12 Oct 2026**. V3 by **12 Nov 2026**, uncommitted.
@@ -227,6 +227,8 @@ Chunking decides what the retrievable unit *is*. Every downstream metric is boun
 
 The seed golden set lands here rather than at M4 ([D-004](./DECISIONS.md)) because M3 asks you to choose between dense, BM25 and multiple fusion settings — and those choices need numbers, not impressions.
 
+For the same reason, Recall@K and MRR — the two metrics M3 actually reports — are learned and implemented here too, not at M4 ([D-010](./DECISIONS.md)). A golden set without working, understood scoring functions to run against it is still an impression, just a more elaborate one.
+
 ### Chunking strategies to learn
 
 Learn all six. Implement three. Ship one.
@@ -281,8 +283,10 @@ Each row: `question, expected_answer, relevant_doc_ids, relevant_chunk_ids, answ
 | T-M2.4 | IMPLEMENT | `app/ingestion/chunker.py` — structure-aware with token guards: split oversized sections, merge undersized ones. |
 | T-M2.5 | IMPLEMENT | Contextual prefix from `section_path`. Chunk schema per PRD: `id, document_id, section_path, contextual_prefix, text, token_count, embedding_id, sparse_terms`. |
 | T-M2.6 | IMPLEMENT | **Embedding cache keyed on `hash(text + model_id)`.** Required, not optional — see [D-003](./DECISIONS.md). You will re-embed this corpus a dozen times during M3 tuning. |
-| T-M2.7 | BUILD | Author the 50-question seed golden set with chunk-level labels. Budget 1–1.5 days; the labelling is the slow part. |
-| T-M2.8 | MEASURE | Chunk statistics: token-count distribution, count of chunks under 50 tokens (orphans), count over the cap, % with a resolved `section_path`. |
+| T-M2.7 | LEARN | Recall@K and MRR — hand-compute both on a toy 5-query set before writing any code ([D-010](./DECISIONS.md)). |
+| T-M2.8 | IMPLEMENT | `app/evaluation/metrics.py` — `recall_at_k()` and `mrr()`, hand-written, unit-tested against the T-M2.7 toy example. |
+| T-M2.9 | BUILD | Author the 50-question seed golden set with chunk-level labels. Budget 1–1.5 days; the labelling is the slow part. |
+| T-M2.10 | MEASURE | Chunk statistics: token-count distribution, count of chunks under 50 tokens (orphans), count over the cap, % with a resolved `section_path`. |
 
 ### Exit criteria
 
@@ -290,6 +294,7 @@ Each row: `question, expected_answer, relevant_doc_ids, relevant_chunk_ids, answ
 - [ ] Token distribution inspected; orphan rate under 5%
 - [ ] Embedding cache proven: second identical run makes zero API calls
 - [ ] 50 golden questions with chunk-level labels, all six categories present
+- [ ] Recall@K and MRR implemented and unit-tested — ready before M3 needs them
 - [ ] Written comparison of three chunking strategies with a concrete example of fixed-size failing
 
 ---
@@ -338,7 +343,7 @@ This milestone produces your first real experimental result. Run all four config
 | T-M3.6 | IMPLEMENT | `SparseRetriever` using `rank_bm25`, built from chunk text + contextual prefix. |
 | T-M3.7 | IMPLEMENT | `RRFFusion` and `WeightedFusion`, both behind one `Fusion` interface. |
 | T-M3.8 | IMPLEMENT | `POST /retrieve` — ranked chunks with scores, per-stage timings, and metadata. |
-| T-M3.9 | MEASURE | All four configs × 50 questions. Recall@1/5/10 and MRR, **broken down by category**. Record in `evals/results/M3_retrieval.md`. |
+| T-M3.9 | MEASURE | All four configs × 50 questions. Recall@1/5/10 and MRR (`app/evaluation/metrics.py`, built at M2 — [D-010](./DECISIONS.md)), **broken down by category**. Record in `evals/results/M3_retrieval.md`. |
 
 ### Exit criteria
 
@@ -383,7 +388,7 @@ Also required: handling malformed LLM output. Structured output requests fail so
 
 Implement by hand ([D-008](./DECISIONS.md)):
 
-**Retrieval:** Recall@K (of the relevant chunks, how many did we get?) · Precision@K (of what we returned, how much was relevant?) · MRR (how high was the *first* relevant hit?) · NDCG (rank-position-weighted, credits getting good results near the top)
+**Retrieval:** Recall@K and MRR already exist — learned and built at M2 ([D-010](./DECISIONS.md)), because M3 needed them. New here: Precision@K (of what we returned, how much was relevant?) and NDCG (rank-position-weighted, credits getting good results near the top) — neither is needed before the full benchmark ladder at T-M4.14, which is why they wait until now.
 
 **Generation:** faithfulness (is every claim supported by cited evidence?) · answer correctness (vs. expected answer) · citation support rate (what fraction of claims carry a citation that actually supports them?)
 
@@ -394,13 +399,13 @@ Implement by hand ([D-008](./DECISIONS.md)):
 | # | Phase | Task |
 |---|---|---|
 | T-M4.1 | LEARN | Bi-encoder vs. cross-encoder; why two stages exist at all. |
-| T-M4.2 | LEARN | The four retrieval metrics — hand-compute all four on a toy 5-query set before writing any code. |
+| T-M4.2 | LEARN | Precision@K and NDCG — hand-compute both on the M2 toy 5-query set (Recall@K/MRR were covered there). |
 | T-M4.3 | LEARN | LLM-judge rubric design and its known failure modes (position bias, verbosity bias, self-preference). |
 | T-M4.4 | PRACTICE | Run a local BGE cross-encoder over a fixed candidate set. Inspect what moved up, what moved down, and whether you agree. |
 | T-M4.5 | IMPLEMENT | `Reranker` interface + local cross-encoder implementation. |
 | T-M4.6 | IMPLEMENT | Context builder — dedupe, token budget, preserve citation mapping. |
 | T-M4.7 | IMPLEMENT | Citation-grounded generation with Pydantic-validated structured output + malformed-output recovery. |
-| T-M4.8 | IMPLEMENT | Metrics module — the four retrieval metrics, hand-written. |
+| T-M4.8 | IMPLEMENT | Extend the M2 metrics module: add `precision_at_k()` and `ndcg()`. |
 | T-M4.9 | IMPLEMENT | LLM judge with fixed rubric; `POST /evaluate` and the experiment runner recording dataset/config/model versions. |
 | T-M4.10 | BUILD | Expand golden set to 150–200 questions. Write the adversarial cases *now* — you've seen the failure modes, so they'll be much better than anything you'd have invented at M2. |
 | T-M4.11 | MEASURE | Full benchmark: baseline → +hybrid → +reranker. Hand-score 20 answers, measure judge agreement. |
