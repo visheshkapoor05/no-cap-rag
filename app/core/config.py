@@ -16,9 +16,9 @@ class PostgresSettings(BaseSettings):
 
     host: str = "localhost"
     port: int = 5432
-    user: str = "rag"
-    password: str = "rag"
-    db: str = "research_bureau"
+    user: str = "vishesh.kapoor"
+    password: str = "vishesh.kapoor"
+    db: str = "retail-rag"
 
     @property
     def dsn(self) -> str:

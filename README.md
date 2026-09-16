@@ -1,6 +1,6 @@
-# research-bureau
+# no-cap-rag
 
-![CI](https://github.com/VisheshKapoor05/research-bureau/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/VisheshKapoor05/no-cap-rag/actions/workflows/ci.yml/badge.svg)
 
 A production-oriented RAG system for retail policy Q&A — hybrid dense+BM25 retrieval, cross-encoder reranking, citation-grounded generation, claim verification, and honest abstention. Built and benchmarked end to end across V1→V2→V3.
 
