@@ -350,6 +350,67 @@ beyond the rename itself.
 
 ---
 
+## D-013 · Sequential search, not a full chunking × retrieval grid — plus one targeted cross-check
+
+**The question raised:** why not chunk the corpus every way (all 6
+strategies from T-M2.1), embed each version, run every retrieval strategy
+against each, and compare the full matrix — a true, exhaustive comparison
+of every possibility, instead of picking a chunking winner at M2 and a
+retrieval winner at M3 sequentially?
+
+**We're doing:** sequential (greedy) search, not a full factorial grid.
+M2 picks a chunking strategy (structure-aware vs. the fixed-size baseline,
+on Recall@5, per T-M2.2's falsifiable prediction) using one retrieval
+method held constant. M3 then picks a retrieval strategy (dense / BM25 /
+hybrid+RRF) using M2's winning chunking strategy held constant. Each stage
+varies one axis at a time.
+
+**Why not the full grid:**
+1. **Same "isolate one variable" principle already used twice**
+   ([D-006](#d-006--milvus-index-flat-first-hnsw-at-scale),
+   [D-011](#d-011--synthetic-corpus-split-clean-md-vs-mixed-pdfdocxtxt)).
+   Crossing every chunking strategy against every retrieval strategy at
+   once doesn't actually strengthen causal claims — if a specific
+   combination scores oddly well, a full grid without much more
+   statistical care can't cleanly say whether that's the chunking, the
+   retrieval method, or an interaction between them. Varying one axis at
+   a time is what makes a score attributable to a specific cause.
+2. **Real, non-trivial cost per cell.** Each chunking-strategy variant
+   means re-chunking the whole corpus, re-embedding it (real API cost and
+   time), rebuilding the index, and re-running retrieval + eval. A 6×4
+   grid is 24 of those, not 24 trivial reruns.
+3. **Several cells are already known losers.** T-M2.1's write-up
+   (`learnings/02-cleaning-chunking-metadata/notes.md`) already reasons
+   through why semantic/percentile and parent-document chunking are
+   solving problems this corpus doesn't have — running them anyway
+   against every retrieval strategy "to be thorough" would mostly
+   confirm the obvious at real cost, not produce a genuine surprise.
+
+**The one gap this doesn't wave away:** sequential search can miss a real
+*interaction effect* — the chunking strategy that wins for one retrieval
+method isn't guaranteed to be the best choice for a different one. That's
+a genuine, non-hypothetical weakness of picking a winner and moving on.
+
+**The hedge — cheap, not exhaustive:** once M3 picks a winning retrieval
+strategy, re-test *that* retrieval strategy against the fixed-size
+baseline too (the one already-built ablation baseline, not all 6
+strategies). One extra cell, not twenty-four — enough to catch "structure-
+aware's M2 win doesn't actually hold under the retrieval method that
+ships," without paying for the full grid to catch it.
+
+**Rejected:** the full 6×4 factorial grid — not because it's wrong in
+principle, it's the only way to be fully certain of the global optimum,
+but because the cost doesn't match what this project can actually learn
+from it, given several cells are already predictable from T-M2.1's
+analysis and this project runs on a real timeline (V1 by Oct 3).
+
+**Caught by:** a direct question about whether the milestone-by-milestone
+approach was actually sound methodology, or just convenient — worth
+answering with the real tradeoff, not just asserting the existing plan was
+right.
+
+---
+
 ## Open questions
 
 Things deliberately not decided yet, with the milestone that will settle them.
