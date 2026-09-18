@@ -114,6 +114,10 @@ question authoring before you know what the pipeline's actual failure modes
 look like — the best adversarial questions are written *after* you've seen
 the system fail).
 
+**See also:** [D-010](#d-010--recallk-and-mrr-move-earlier-m2-not-m4) — the
+same reasoning applied one layer deeper. Moving the golden set earlier isn't
+enough on its own if the code to score against it doesn't exist yet.
+
 ---
 
 ## D-005 · BM25 engine: `rank_bm25` in-process, not OpenSearch
@@ -191,10 +195,12 @@ real work with no learning payoff).
 ## D-008 · Metrics implemented by hand before reaching for Ragas
 
 **PRD says:** "Python harness + optional Ragas/DeepEval".
-**We're doing:** implement Recall@K, Precision@K, MRR and NDCG ourselves at
-M4. Optionally cross-check against Ragas afterwards.
+**We're doing:** implement Recall@K, Precision@K, MRR and NDCG ourselves —
+Recall@K and MRR at M2, Precision@K and NDCG at M4 (see [D-010](#d-010--recallk-and-mrr-move-earlier-m2-not-m4)
+for why they're split across two milestones rather than built together).
+Optionally cross-check the full set against Ragas afterwards.
 
-**Why:** These metrics are ~20 lines each, and the differences between them
+**Why:** These metrics are ~15–20 lines each, and the differences between them
 (why NDCG rewards rank position and Recall@K doesn't; why MRR only cares
 about the first hit) are precisely what needs to be understood to interpret
 the results. Calling a library returns numbers without that understanding —
@@ -205,7 +211,7 @@ and worth doing.
 
 **Rejected:** Ragas-first (faster to numbers, much slower to understanding,
 and it becomes very hard to debug a metric you didn't write when a result
-looks wrong).
+looks wrong); building all four together at M4 as originally planned (see D-010).
 
 ---
 
@@ -228,6 +234,119 @@ one — wrong for policy, where currency is binary rather than a preference).
 
 **Decided at:** M8. Logged here at planning time so the M1 corpus was built
 with real version chains to support it.
+
+---
+
+## D-010 · Recall@K and MRR move earlier (M2, not M4)
+
+**Original plan said:** all four retrieval metrics (Recall@K, Precision@K,
+MRR, NDCG) are learned and implemented together at M4, alongside reranking
+and generation.
+
+**We're doing:** Recall@K and MRR — learned and implemented — at M2, right
+after the golden set exists. Precision@K and NDCG stay at M4.
+
+**Why:** a straightforward sequencing bug in the original plan. T-M3.9
+requires reporting Recall@K and MRR for four retrieval configs — but the task
+that teaches what they mean and the task that builds the code to compute them
+were both scheduled a full milestone *later*, at M4. M3 would have asked for
+numbers from a formula not yet taught, using code that didn't exist yet.
+
+This is the second half of [D-004](#d-004--seed-golden-set-moves-earlier-m2-not-m4),
+which already moved the *labelled data* earlier for exactly this reason — a
+golden set at M2 with no working scorer to run against it is still just an
+impression, only a more elaborate one. Splitting the four metrics rather than
+moving all four is deliberate: M3 only ever reports Recall@K and MRR (check
+its results table — no Precision@K or NDCG column), so those two are the only
+ones with anything to fix. Precision@K and NDCG are first used at M4's full
+benchmark ladder (T-M4.14) and genuinely don't need to exist before then —
+moving them too would just be front-loading with no milestone asking for them
+yet, the same mistake the PRD's original golden-set-at-M4 ordering made.
+
+**Rejected:** leaving all four at M4 as planned (the bug this decision fixes);
+moving all four to M2 (Precision@K/NDCG would sit unused for two milestones —
+premature, and against the project's own just-in-time learning method in
+[BLUEPRINT.md §2](./BLUEPRINT.md#2-the-method-why-learning-comes-before-code)).
+
+**Caught by:** a direct question during planning — "how can I measure metrics
+in M3 if evaluation isn't taught until the last section of V1?" — rather than
+discovered mid-build. Exactly the kind of check the method is supposed to
+produce.
+
+---
+
+## D-011 · Synthetic corpus split: `clean/` (.md) vs. `mixed/` (pdf/docx/txt)
+
+**We're doing:** 15 of the 28 synthetic documents stay `.md` in
+`corpus/synthetic/clean/` — the set M2/M3's chunking and retrieval
+experiments run against. The other 13 are genuinely mixed format
+(`.pdf`/`.docx`/`.txt`) in `corpus/synthetic/mixed/`, with real extraction
+failure modes built in (broken tables, scrambled multi-column text, diagrams
+that degrade to disconnected fragments) — used to exercise the ingestion
+parser, not the chunking-strategy ablation.
+
+**Why not all `.md`:** an all-markdown corpus never proves the ingestion
+pipeline can survive contact with a real document — every real enterprise
+document store is a mix of PDF, Word, and plain text, several with broken
+formatting. It also reads as noticeably thin on GitHub — a portfolio
+reviewer skimming the file tree sees uniform clean text and reasonably
+assumes toy content, independent of what the code actually does.
+
+**Why not all mixed either:** format noise is a confound for the specific
+thing M2/M3 measure. If a PDF-extraction artifact severs a chunk badly, that
+looks identical in the Recall@K numbers to a genuinely bad chunking
+algorithm — indistinguishable without re-deriving which one actually
+happened. [D-006](#d-006--milvus-index-flat-first-hnsw-at-scale) made the
+same call for the index (FLAT before HNSW, so recall shortfalls are
+attributable to logic, not to approximate search); this is the same
+reasoning applied to document format.
+
+**Rejected:** editing real public-source text (from `MANIFEST.md`'s Half A)
+into "new synthetic versions" — considered and rejected outright, not on
+messiness grounds but because it would make the SYNTHETIC banner false on
+content that started as someone else's real, copyrighted policy. See the
+conversation log around this decision for the full reasoning — it's a
+labeling-integrity problem, not a technical one.
+
+**Caught by:** direct feedback that an all-`.md` corpus "won't seem like a
+real project" on GitHub — a presentation concern, distinct from (but
+resolved by the same fix as) the earlier chunking-confound discussion.
+
+---
+
+## D-012 · `main` stays README-only; milestone branches carry the analogy names
+
+**We're doing:** `main` holds nothing but the README, LICENSE, and repo
+hygiene files (`.gitignore`/`.dockerignore`) until a milestone is fully
+merged via PR — it does not track in-progress work the way it briefly did
+during P0. All active development happens on a milestone branch, and every
+milestone branch is named after the chapter of the office story it
+represents — not `feat/m1-corpus-ingestion`, but `feat/the-mailroom-opens`
+(the office receiving and filing its first real mail: ingestion, the
+Postgres registry, the ingest API, the CLI). Future milestones follow the
+same pattern — a short, evocative phrase from [ANALOGY.md](./ANALOGY.md)'s
+own vocabulary, not the milestone number.
+
+**Why:** two separate problems, one fix each, done together. (1) `main`
+already drifted once during P0 — 12 days of finished code sitting
+uncommitted/unprotected before repo setup actually happened (see the
+BLUEPRINT.md rebase note) — keeping `main` deliberately empty until a PR
+lands removes the temptation to treat it as a scratch space. (2) Generic
+branch names (`feat/m1-corpus-ingestion`) describe *what* a branch is;
+analogy names describe *where the project's own story is* at that point —
+reading the branch list top to bottom should read like a table of
+contents for the office's growth, the same reason each milestone card in
+the blueprint already carries an "🏢 In office terms" line.
+
+**Rejected:** keeping the numbered `feat/m1-corpus-ingestion` naming — it's
+not wrong, just a missed opportunity, since the analogy already exists and
+is already used everywhere else in the project's own documentation and
+code comments.
+
+**Caught by:** direct feedback, immediately after `feat/m1-corpus-ingestion`
+had already been created and pushed once — renamed to
+`feat/the-mailroom-opens` before anything merged, so no cleanup was needed
+beyond the rename itself.
 
 ---
 

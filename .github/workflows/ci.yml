@@ -7,6 +7,20 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: vishesh.kapoor
+          POSTGRES_PASSWORD: vishesh.kapoor
+          POSTGRES_DB: retail-rag
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U vishesh.kapoor -d retail-rag"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v4
 
@@ -16,8 +30,13 @@ jobs:
           cache: "pip"
           cache-dependency-path: requirements-dev.txt
 
+      - name: Install system dependencies (pdftotext for PDF ingestion)
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends poppler-utils
+
       - name: Install dependencies
         run: pip install -r requirements-dev.txt
 
       - name: Run tests
         run: pytest -v
+        env:
+          POSTGRES_HOST: localhost
