@@ -195,9 +195,12 @@ real work with no learning payoff).
 ## D-008 · Metrics implemented by hand before reaching for Ragas
 
 **PRD says:** "Python harness + optional Ragas/DeepEval".
-**We're doing:** implement Recall@K, Precision@K, MRR and NDCG ourselves —
-Recall@K and MRR at M2, Precision@K and NDCG at M4 (see [D-010](#d-010--recallk-and-mrr-move-earlier-m2-not-m4)
-for why they're split across two milestones rather than built together).
+**We're doing:** implement Recall@K, Precision@K, R-Precision, MRR and NDCG
+ourselves — Recall@K and MRR at M2, Precision@K/R-Precision and NDCG at M4
+(see [D-010](#d-010--recallk-and-mrr-move-earlier-m2-not-m4) for why they're
+split across two milestones rather than built together; see
+[D-014](#d-014--precisionk-at-a-fixed-k-is-the-wrong-headline-precision-metric--use-r-precision)
+for why R-Precision, not fixed-K Precision@K, is the one actually reported).
 Optionally cross-check the full set against Ragas afterwards.
 
 **Why:** These metrics are ~15–20 lines each, and the differences between them
@@ -408,6 +411,215 @@ analysis and this project runs on a real timeline (V1 by Oct 3).
 approach was actually sound methodology, or just convenient — worth
 answering with the real tradeoff, not just asserting the existing plan was
 right.
+
+---
+
+## D-014 · Precision@K at a fixed K is the wrong headline precision metric — use R-Precision
+
+**The question raised:** Precision@K = (relevant chunks in top K) / K. If a
+question's golden label has fewer relevant chunks than K, is a low
+Precision@K actually telling you the retriever failed, or just that K was
+bigger than the number of true answers?
+
+**The flaw, shown concretely:** two retrievers, both *perfect* (every
+relevant chunk found, ranked first), evaluated at K=5:
+
+| Question | Relevant chunks (R) | Perfect retriever's top 5 | Precision@5 |
+|---|---|---|---|
+| Q1 (factual lookup) | 1 (just A) | [A, X, Y, Z, W] | 1/5 = **0.20** |
+| Q2 (multi-hop) | 3 (A, B, C) | [A, B, C, X, Y] | 3/5 = **0.60** |
+
+Both retrievers did everything right. Precision@5 scores them 0.20 and
+0.60 — a 3x gap that has nothing to do with retrieval quality and
+everything to do with how many golden labels each question happened to
+have. Averaging Precision@K across this project's golden set is
+especially exposed to this, since `relevant_chunk_ids` genuinely varies by
+category (an "exact identifier" question typically has 1; a "multi-hop"
+question typically has 2–3).
+
+**It gets worse — fixed Precision@K can't even distinguish good from bad**
+for a single-relevant-chunk question. Take Q1 again, but now a flawed
+retriever that still finds A, just buried at rank 2: `[X, A, Y, Z, W]`.
+Precision@5 is still 1/5 = **0.20** — identical to the perfect retriever
+above. At K=5, R=1, the metric has nowhere near enough resolution to tell
+"found it immediately" from "found it, but not until rank 2."
+
+**We're doing:** implement both `precision_at_k()` (T-M4.9, as originally
+planned — useful pedagogically and as a sanity cross-check) and
+`r_precision()`, where R = the number of relevant chunks for that specific
+question (i.e. Precision@R, a per-question K). **R-Precision is the one
+reported** in the T-M4.14 benchmark ladder and anywhere else "precision"
+was previously the headline number.
+
+Re-scoring the example with R-Precision: Q1's perfect retriever gets
+Precision@1 = 1/1 = **1.0**; Q2's perfect retriever gets Precision@3 =
+3/3 = **1.0** — both correctly recognized as perfect, no longer penalized
+for how many golden labels existed. And the flawed Q1 retriever (`[X, A, ...]`)
+gets Precision@1 = 0/1 = **0.0** — correctly distinguished from the
+perfect one, which fixed Precision@5 couldn't do.
+
+**Rejected:** fixed Precision@K alone (the flaw above — distorted by
+golden-label count, and under-resolved for small-R questions, which this
+corpus has many of); dropping Precision@K entirely (it's still a useful
+teaching contrast in T-M4.2 — hand-computing both on the same toy set is
+what makes R-Precision's fix legible, rather than just asserting R-Precision
+is better).
+
+**Caught by:** a direct question during Section M2.7's metrics walkthrough
+— "what if only 1 relevant chunk was there, and we're fetching top 5 —
+that's not a retrieval mistake, so is Precision@K just not a good metric?"
+— rather than discovered after T-M4.14's numbers came in looking strange.
+
+**Reversible?** Yes, cheaply — `precision_at_k()` stays implemented either
+way; this only changes which number M4's results table reports as "the"
+precision column.
+
+---
+
+## D-015 · Golden set references chunks by natural key (title/version/section), never by Postgres UUID
+
+**The problem, found empirically, not anticipated:** T-M2.9's golden set
+was first built by resolving each question's relevant chunk against the
+real `chunks` table and freezing the resulting UUID into
+`golden_set.yaml`. The very first time the full test suite ran, two
+golden-set tests failed — not because the questions were wrong, but
+because an unrelated test's `clean_documents` fixture (`TRUNCATE documents
+CASCADE`, used by several other tests for their own isolation) had already
+run earlier in the suite and wiped the corpus. Re-ingesting it produces a
+**different** set of UUIDs every time, since `id UUID PRIMARY KEY DEFAULT
+gen_random_uuid()` assigns a fresh id on every insert — there's nothing
+about re-ingesting the identical file content that preserves the old
+document/chunk ids.
+
+**We're doing:** `golden_set.yaml` stores natural-key references —
+`{title, version, section}` for chunks, `{title, version}` for documents —
+never a Postgres UUID. `evals/golden_set/resolve.py` resolves a question's
+specs into live UUIDs at the point of actual use (a future retrieval
+evaluation run), querying Postgres fresh each time rather than trusting a
+value frozen at authoring time. `evals/golden_set/build.py` still validates
+every spec resolves to exactly one real chunk *at build time* too (so a
+typo in a question's spec is still caught immediately) — it just never
+writes the resolved id to disk.
+
+**Why this matters beyond the test suite:** this isn't just a testing
+quirk. The identical failure mode would hit a real evaluation run after
+*any* full corpus rebuild — a schema migration, a chunker bugfix that
+requires re-chunking (T-M2.5's own design note already flagged re-chunking
+as a real future need), or simply re-running the ingestion CLI against a
+fresh database. A golden set frozen to UUIDs would have silently measured
+against the wrong (or nonexistent) chunks after any of those, with no
+error — exactly the kind of bug this project's whole method is built to
+catch before it ships, not after.
+
+**Rejected:** keeping frozen UUIDs and just being careful never to
+re-ingest in an environment the golden set depends on — rejected as
+fragile-by-construction, and the entire point of T-M1.7/T-M2.6's
+idempotency work is that re-running ingestion is supposed to be a safe,
+unremarkable operation, not something the golden set has to be protected
+from.
+
+**Caught by:** running the real test suite, not by reasoning about it in
+advance — `test_every_relevant_doc_id_exists_in_postgres` failed on a
+completely fresh set of UUIDs the moment it ran after
+`test_documents_registry.py` in the same session, which is what surfaced
+the `gen_random_uuid()` behavior as the actual root cause rather than a
+flaky test.
+
+---
+
+## D-016 · Tests and local dev share Postgres, but never the same database
+
+**The problem:** local test runs and manual local exploration (DBeaver,
+pgAdmin, the CLI) were both pointed at the exact same database
+(`retail-rag`). Every test using the `clean_documents` fixture truncates
+`documents`/`chunks` as part of its own isolation — correct for the test,
+but it meant running `pytest` locally silently deleted whatever corpus data
+a person had just ingested to look at. Caught directly: a user ingested the
+full corpus to browse in DBeaver, ran the test suite in between, and found
+both tables empty with no error anywhere explaining why.
+
+**We're doing:** tests always run against `<configured db name>-test`
+(e.g. `retail-rag-test`), never the plain configured name — forced via an
+`os.environ["POSTGRES_DB"] = f"{...}-test"` override at the very top of
+`tests/conftest.py`, before any `app.*` import. This works because
+`get_settings()`/`get_pool()` read `POSTGRES_DB` lazily at first call, not
+at import time, and `app/api/documents.py`'s route handlers call
+`get_pool()` directly (not only at FastAPI's lifespan startup) — so the
+override transparently covers CLI-style tests, direct-pool tests, *and*
+`TestClient`-driven API tests with one change, not three.
+
+The test database doesn't need to exist beforehand: `_ensure_database_exists()`
+connects to Postgres's always-present `postgres` maintenance database
+(autocommit, since `CREATE DATABASE` can't run inside a transaction) and
+creates `retail-rag-test` on first run if it's missing — same "reproducible
+from nothing but what's committed" principle as T-M1.9's ingestion CLI,
+applied to test infrastructure instead of corpus data.
+
+**Rejected:** a local-only `.env.test` file the developer has to remember
+to use — rejected because "remember to pass the right env file" is exactly
+the kind of manual step that gets forgotten under normal working pressure,
+which is how this bug happened in the first place; pytest-scoped `TRUNCATE`
+without database separation (the status quo being fixed) — rejected for
+the reason above; mocking Postgres for tests instead — rejected for the
+same reason D-008/D-013 already rejected mocks elsewhere: these are
+integration tests proving real schema/constraint behavior, and a mock
+proves nothing about that.
+
+**Not changed:** CI (`.github/workflows/ci.yml`) already starts a brand-new,
+disposable Postgres container per run — there's no persistent dev data
+there to protect, so this fix is purely a local-development quality-of-life
+change. `_ensure_database_exists()` still runs harmlessly in CI; it just
+creates `retail-rag-test` on a container that was empty anyway.
+
+---
+
+## D-017 · A real file-upload endpoint, distinct from the ref-based ingest endpoint
+
+**The problem:** `POST /documents/ingest` only ever accepts a `ref` —
+a URL or a path to a file the *server* already has on disk. That's correct
+for its actual purpose (T-M1.9's CLI and this endpoint both ingest the
+project's own known corpus reproducibly), but it's not what "ingest a
+document" sounds like it should do from outside the project, and it's not
+a way to get a genuinely new file (one not already sitting in `corpus/`)
+into the system at all. A user trying the API through Swagger UI expected
+to attach a file and was confused that the only field was a text `ref`.
+
+**We're doing:** a second, separate endpoint, `POST /documents/upload`,
+that accepts real file bytes via `multipart/form-data` (a `file` field,
+plus the same `type`/`title`/`version`/etc. as the existing endpoint,
+`metadata` passed as a JSON string since multipart forms can't carry
+nested JSON directly). It reuses T-M1.5's `extract_text()`/`guess_kind()`
+(pure functions — they never cared whether bytes came from a `URLSource`
+fetch or a browser upload) and the exact same `ingest_document()` (T-M1.7)
+the CLI and `POST /ingest` already call — a fourth way for bytes to enter
+the pipeline, not a fourth copy of the pipeline itself.
+
+**Rejected:** overloading `POST /ingest` to accept either a `ref` string
+or a file body — rejected because the two are genuinely different
+request shapes (JSON vs. multipart) and different failure modes (a bad
+`ref` is a fetch failure; a bad upload is an extraction failure on bytes
+already in hand) — keeping them as separate endpoints keeps each one's
+contract simple to read and simple to document, rather than one endpoint
+whose behavior silently branches on which fields happen to be present.
+
+**Added right after, same endpoint:** `effective_date` is optional on
+upload but had no source to default from — unlike `plan_synthetic()`'s
+YAML-frontmatter path, an uploaded file has no structured metadata at all.
+Added `extract_effective_date()` (`app/ingestion/extract.py`) as a
+best-effort regex over the document's own extracted text: "Effective:
+Month Day, Year" (clean/'s convention, including the one real date-range
+case, "Effective June 15 – July 31, 2026", where the start date is used)
+or "Date: YYYY-MM-DD" (the incident postmortems/ADRs, which don't say
+"Effective" at all). Checked against all 28 real synthetic documents'
+actual headers, not a guessed pattern — 28/28 resolve correctly. A
+caller-supplied `effective_date` always wins; this only ever fills a gap
+(`effective_date or extract_effective_date(text)`), applied identically on
+both `POST /ingest` and `POST /upload` for consistency, not just the one
+that prompted it.
+
+**Reversible?** Yes, trivially — it's a thin new route on top of
+pre-existing, already-tested pipeline functions; nothing underneath it
+changed.
 
 ---
 
