@@ -8,8 +8,9 @@ A production-oriented RAG system for retail policy Q&A — hybrid dense+BM25 ret
 
 A public + synthetic corpus, retrieved with evidence, answered with citations, verified, and abstained from when the evidence doesn't hold up. Built in three shippable tiers: V1 → V2 → V3.
 See [`Project_1_Advanced_RAG_PRD_Architecture.pdf`](./Project_1_Advanced_RAG_PRD_Architecture.pdf)
-for the full plan and [`DECISIONS.md`](./DECISIONS.md) for where the build
-knowingly deviates from it.
+for the full plan, [`DECISIONS.md`](./DECISIONS.md) for where the build
+knowingly deviates from it, and [`EVALUATION.md`](./EVALUATION.md) for the
+golden-set methodology and what each metric actually measures.
 
 Every module in this repo plays a role in one running analogy — an internal
 company research-and-answers office. See [ANALOGY.md](./ANALOGY.md) for the
@@ -21,13 +22,20 @@ to where it's actually used in this codebase.
 
 ## Status
 
-**M1 — Corpus & Ingestion, in progress on `feat/the-mailroom-opens`.** The
-corpus is fully authored (see [Corpus](#corpus) below), and there's now a
-working ingestion pipeline end to end: fetch/read a document (`Source` +
+**M1 — Corpus & Ingestion: done, merged to `main`.** Full ingestion
+pipeline end to end: fetch/read a document (`Source` +
 `URLSource`/`FileSource`), extract its text, hash it, store it idempotently
-in Postgres, expose it over `POST /documents/ingest` / `GET /documents/{id}`,
-and rebuild the whole thing from one CLI command. Chunking, embeddings, and
-the vector DB don't exist yet — those start at M2/M3.
+in Postgres, expose it over `POST /documents/ingest` / `POST
+/documents/upload` (real file attach) / `GET /documents/{id}`, and rebuild
+the whole thing from one CLI command.
+
+**M2 — Chunking & Seed Golden Set, in progress on `feat/filing-by-section`.**
+Structure-aware chunking with a contextual prefix (`app/chunking/`), a
+disk-backed embedding cache (`app/embeddings/`), hand-written Recall@K/MRR
+(`app/evaluation/`), and a 50-question golden set resolved against the real,
+fully-chunked corpus (`evals/golden_set/`) — see [EVALUATION.md](./EVALUATION.md)
+for the methodology. Dense/BM25 retrieval, reranking, and generation don't
+exist yet — those start at M3/M4.
 
 ## Quick start
 

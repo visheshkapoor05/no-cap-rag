@@ -9,8 +9,10 @@ that could quietly diverge.
 """
 from __future__ import annotations
 
+import re
 import subprocess
 import tempfile
+from datetime import date
 from io import BytesIO
 from pathlib import Path
 
@@ -18,6 +20,20 @@ from bs4 import BeautifulSoup
 from docx import Document
 
 _MIN_MEANINGFUL_CHARS = 20
+
+_MONTHS = {
+    "January": 1, "February": 2, "March": 3, "April": 4, "May": 5, "June": 6,
+    "July": 7, "August": 8, "September": 9, "October": 10, "November": 11, "December": 12,
+}
+# "Effective:** February 1, 2026" (clean/, markdown bold) or
+# "Effective June 15 – July 31, 2026" (mixed/, a date range — the START date
+# is what gets captured, the optional "– End Date" is matched but discarded).
+_EFFECTIVE_DATE_RE = re.compile(
+    r"Effective\W{0,8}([A-Z][a-z]+)\s+(\d{1,2})(?:\s*[-–]\s*[A-Z][a-z]+\s+\d{1,2})?,?\s*(\d{4})"
+)
+# "Date: 2026-03-18" / "Date 2026-05-02." — the postmortems and ADRs, which
+# don't use "Effective" at all.
+_ISO_DATE_RE = re.compile(r"\bDate\W{0,3}(\d{4})-(\d{2})-(\d{2})")
 
 
 def guess_kind(content_type: str | None, ref: str) -> str:
@@ -59,6 +75,38 @@ def extract_text(raw_bytes: bytes, kind: str) -> str | None:
     if text is None or len(text.strip()) < _MIN_MEANINGFUL_CHARS:
         return None
     return text
+
+
+def extract_effective_date(text: str) -> date | None:
+    """Best-effort auto-detection of a document's effective date from its
+    own text, for when a caller (the upload endpoint in particular) doesn't
+    supply one explicitly. Heuristic, not authoritative — a caller-supplied
+    effective_date always wins; this only ever fills a gap, never overrides
+    one. Verified against all 28 real synthetic documents' actual header
+    conventions (28/28 resolve correctly) rather than a guessed pattern:
+    "Effective:** Month Day, Year" (clean/, including date ranges like
+    "Effective June 15 – July 31, 2026", where the start date is used) and
+    "Date: YYYY-MM-DD" (the incident postmortems and ADRs, which don't use
+    "Effective" at all)."""
+    m = _EFFECTIVE_DATE_RE.search(text)
+    if m:
+        month_name, day, year = m.groups()
+        month = _MONTHS.get(month_name)
+        if month is not None:
+            try:
+                return date(int(year), month, int(day))
+            except ValueError:
+                pass  # e.g. a false-positive match producing day=32 -- fall through
+
+    m = _ISO_DATE_RE.search(text)
+    if m:
+        year, month, day = m.groups()
+        try:
+            return date(int(year), int(month), int(day))
+        except ValueError:
+            pass
+
+    return None
 
 
 def _extract_pdf(raw_bytes: bytes) -> str | None:

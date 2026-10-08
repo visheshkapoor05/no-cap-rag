@@ -1,0 +1,965 @@
+version: 1
+questions:
+- id: factual_lookup-01
+  category: factual_lookup
+  question: How many days do I have to return an unopened item?
+  expected_answer: 30 days from delivery or purchase for a full refund to the original payment method.
+  relevant_docs:
+  - title: Returns Policy
+    version: '3.0'
+  relevant_chunks:
+  - title: Returns Policy
+    version: '3.0'
+    section: 1. Standard Return Window
+    text: null
+  answerable: true
+  difficulty: easy
+  tags:
+  - returns
+- id: factual_lookup-02
+  category: factual_lookup
+  question: What percentage discount do active employees get on personal purchases?
+  expected_answer: 20%, applied at checkout using the employee's staff ID, on the pre-tax price.
+  relevant_docs:
+  - title: Employee Discount Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: Employee Discount Policy
+    version: '1.0'
+    section: 1. Standard Discount
+    text: null
+  answerable: true
+  difficulty: easy
+  tags:
+  - staff
+- id: factual_lookup-03
+  category: factual_lookup
+  question: How many days' advance notice is required for a PTO request?
+  expected_answer: 7 days' advance notice, except where the emergency leave exception applies.
+  relevant_docs:
+  - title: Leave Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: Leave Policy
+    version: '1.0'
+    section: 2. PTO Accrual
+    text: null
+  answerable: true
+  difficulty: easy
+  tags:
+  - staff
+- id: factual_lookup-04
+  category: factual_lookup
+  question: How many hours of rest are required between the end of one shift and the start of the next?
+  expected_answer: A minimum of 10 hours, including for closing-to-opening ("clopening") schedules.
+  relevant_docs:
+  - title: Shift Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: Shift Policy
+    version: '1.0'
+    section: 4. Minimum Rest Between Shifts
+    text: null
+  answerable: true
+  difficulty: easy
+  tags:
+  - staff
+- id: factual_lookup-05
+  category: factual_lookup
+  question: Do gift card balances expire?
+  expected_answer: No. Gift card balances do not expire and no dormancy or maintenance fee is charged.
+  relevant_docs:
+  - title: Gift Card Terms
+    version: '1.0'
+  relevant_chunks:
+  - title: Gift Card Terms
+    version: '1.0'
+    section: 2. Balance and Expiry
+    text: null
+  answerable: true
+  difficulty: easy
+  tags:
+  - gift_cards
+- id: factual_lookup-06
+  category: factual_lookup
+  question: What is the maximum combined discount allowed when multiple promotions stack on one item?
+  expected_answer: 50% off the original tagged price, regardless of what the individual stacked percentages
+    would otherwise sum to.
+  relevant_docs:
+  - title: Discount Stacking Rules
+    version: '1.0'
+  relevant_chunks:
+  - title: Discount Stacking Rules
+    version: '1.0'
+    section: 3. Maximum Combined Discount
+    text: null
+  answerable: true
+  difficulty: easy
+  tags:
+  - promotions
+- id: factual_lookup-07
+  category: factual_lookup
+  question: How many paid days of bereavement leave are granted for an immediate family member?
+  expected_answer: Up to 3 paid days, separate from PTO and sick leave balances.
+  relevant_docs:
+  - title: Leave Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: Leave Policy
+    version: '1.0'
+    section: 4. Bereavement Leave
+    text: null
+  answerable: true
+  difficulty: easy
+  tags:
+  - staff
+- id: factual_lookup-08
+  category: factual_lookup
+  question: What is the fixed starting cash float for a till at the beginning of a shift?
+  expected_answer: $200, counted against at shift start; any discrepancy over $2 at opening is logged
+    immediately.
+  relevant_docs:
+  - title: Cash Handling SOP
+    version: '1.0'
+  relevant_chunks:
+  - title: Cash Handling SOP
+    version: '1.0'
+    section: 2. Opening Count
+    text: null
+  answerable: true
+  difficulty: easy
+  tags:
+  - cash_handling
+- id: factual_lookup-09
+  category: factual_lookup
+  question: How long is the full-replacement warranty on general electronics?
+  expected_answer: 90 days from the date of purchase.
+  relevant_docs:
+  - title: Warranty Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: Warranty Policy
+    version: '1.0'
+    section: null
+    text: Electronics (general)
+  answerable: true
+  difficulty: easy
+  tags:
+  - warranty
+- id: factual_lookup-10
+  category: factual_lookup
+  question: What is the typical delivery window for Standard shipping?
+  expected_answer: 5-7 business days, not guaranteed unless Expedited or Scheduled service is purchased.
+  relevant_docs:
+  - title: Shipping Policy
+    version: null
+  relevant_chunks:
+  - title: Shipping Policy
+    version: null
+    section: null
+    text: Standard | 5
+  answerable: true
+  difficulty: easy
+  tags:
+  - shipping
+- id: factual_lookup-11
+  category: factual_lookup
+  question: How many business days does a price-match refund take to process?
+  expected_answer: Within 5 business days, refunded to the original payment method, never as store credit
+    or points.
+  relevant_docs:
+  - title: Price Match Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: Price Match Policy
+    version: '1.0'
+    section: 5. Refund of the Difference
+    text: null
+  answerable: true
+  difficulty: easy
+  tags:
+  - price_match
+- id: factual_lookup-12
+  category: factual_lookup
+  question: Above what till cash amount does a mid-shift cash drop need to be performed?
+  expected_answer: When till cash exceeds $300 above the starting float.
+  relevant_docs:
+  - title: Cash Handling SOP
+    version: '1.0'
+  relevant_chunks:
+  - title: Cash Handling SOP
+    version: '1.0'
+    section: 3. Mid-Shift Drops
+    text: null
+  answerable: true
+  difficulty: easy
+  tags:
+  - cash_handling
+- id: factual_lookup-13
+  category: factual_lookup
+  question: Under the current loyalty program rules, how many points does a member need to redeem for
+    $1 of purchase value?
+  expected_answer: 100 points redeem for $1 of purchase value, up to 100% of the order total.
+  relevant_docs:
+  - title: Loyalty Program Rules
+    version: '2.0'
+  relevant_chunks:
+  - title: Loyalty Program Rules
+    version: '2.0'
+    section: 3. Points Redemption
+    text: null
+  answerable: true
+  difficulty: easy
+  tags:
+  - loyalty
+- id: factual_lookup-14
+  category: factual_lookup
+  question: Under the current loyalty program rules, how many months after being earned do points expire?
+  expected_answer: 18 months after the calendar month in which they were earned, tracked on a rolling
+    basis.
+  relevant_docs:
+  - title: Loyalty Program Rules
+    version: '2.0'
+  relevant_chunks:
+  - title: Loyalty Program Rules
+    version: '2.0'
+    section: 5. Points Expiry
+    text: null
+  answerable: true
+  difficulty: easy
+  tags:
+  - loyalty
+- id: factual_lookup-15
+  category: factual_lookup
+  question: After how many consecutive months of no account activity are a member's loyalty points expired?
+  expected_answer: 24 consecutive months of no purchase or redemption activity, at which point all points
+    expire immediately and the account is flagged inactive.
+  relevant_docs:
+  - title: Points Expiry Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: Points Expiry Policy
+    version: '1.0'
+    section: 3. Account Inactivity
+    text: null
+  answerable: true
+  difficulty: easy
+  tags:
+  - loyalty
+- id: exact_identifier-01
+  category: exact_identifier
+  question: What does incident code POS-ERR-3021 refer to?
+  expected_answer: The POS Outage Postmortem -- a ~47-minute network-layer outage affecting register connectivity
+    at 14 stores on 2026-03-18.
+  relevant_docs:
+  - title: POS Outage Postmortem
+    version: null
+  relevant_chunks:
+  - title: POS Outage Postmortem
+    version: null
+    section: null
+    text: 'Incident Postmortem: Point-of-Sale Outage'
+  answerable: true
+  difficulty: medium
+  tags:
+  - identifier
+  - incidents
+- id: exact_identifier-02
+  category: exact_identifier
+  question: What does incident code POS-ERR-3045 refer to?
+  expected_answer: The Payment Gateway Failure Postmortem -- a 22-minute payment-authorization failure
+    caused by an uncommunicated TLS certificate rotation, on 2026-04-09.
+  relevant_docs:
+  - title: Payment Gateway Failure Postmortem
+    version: null
+  relevant_chunks:
+  - title: Payment Gateway Failure Postmortem
+    version: null
+    section: null
+    text: 'Incident Postmortem: Payment Gateway Failure'
+  answerable: true
+  difficulty: medium
+  tags:
+  - identifier
+  - incidents
+- id: exact_identifier-03
+  category: exact_identifier
+  question: What does incident code POS-ERR-3102 refer to?
+  expected_answer: The Inventory Sync Failure Postmortem -- a silent 3-night inventory sync failure caused
+    by a POS export schema change, detected 2026-05-02.
+  relevant_docs:
+  - title: Inventory Sync Failure Postmortem
+    version: null
+  relevant_chunks:
+  - title: Inventory Sync Failure Postmortem
+    version: null
+    section: null
+    text: Incident Postmortem - Inventory Sync Failure
+  answerable: true
+  difficulty: medium
+  tags:
+  - identifier
+  - incidents
+- id: exact_identifier-04
+  category: exact_identifier
+  question: What does incident code POS-ERR-3210 refer to?
+  expected_answer: The Loyalty Double-Credit Postmortem -- a race condition in the accrual retry logic
+    that double-credited points on ~1,900 transactions, on 2026-05-22.
+  relevant_docs:
+  - title: Loyalty Double-Credit Postmortem
+    version: null
+  relevant_chunks:
+  - title: Loyalty Double-Credit Postmortem
+    version: null
+    section: null
+    text: 'Incident Postmortem: Loyalty Points Double-Credit'
+  answerable: true
+  difficulty: medium
+  tags:
+  - identifier
+  - incidents
+- id: exact_identifier-05
+  category: exact_identifier
+  question: What is document SOP-RET-014?
+  expected_answer: The Returns Exception Matrix -- the internal procedure associates follow when a return
+    request doesn't cleanly fit the standard Returns Policy (RET-POL-001).
+  relevant_docs:
+  - title: Returns Exception Matrix
+    version: '2.0'
+  relevant_chunks:
+  - title: Returns Exception Matrix
+    version: '2.0'
+    section: null
+    text: SOP ID:** SOP-RET-014
+  answerable: true
+  difficulty: medium
+  tags:
+  - identifier
+  - returns
+- id: exact_identifier-06
+  category: exact_identifier
+  question: What is runbook RUN-REF-001 used for?
+  expected_answer: The Failed Refund Runbook -- used when a refund was already approved but fails to actually
+    process; it assumes the decision to refund was correct and is purely about recovering a stuck transaction.
+  relevant_docs:
+  - title: Failed Refund Runbook
+    version: '1.0'
+  relevant_chunks:
+  - title: Failed Refund Runbook
+    version: '1.0'
+    section: null
+    text: Runbook ID:** RUN-REF-001
+  answerable: true
+  difficulty: medium
+  tags:
+  - identifier
+  - refunds
+- id: exact_identifier-07
+  category: exact_identifier
+  question: What is policy PROMO-POL-002?
+  expected_answer: The Discount Stacking Rules -- the most cross-referenced document in the corpus, defining
+    what counts as a "promotional discount" for the Returns Policy, Warranty Policy exclusions, and Price
+    Match Policy.
+  relevant_docs:
+  - title: Discount Stacking Rules
+    version: '1.0'
+  relevant_chunks:
+  - title: Discount Stacking Rules
+    version: '1.0'
+    section: null
+    text: Policy ID:** PROMO-POL-002
+  answerable: true
+  difficulty: medium
+  tags:
+  - identifier
+  - promotions
+- id: exact_identifier-08
+  category: exact_identifier
+  question: What is SOP-CASH-009?
+  expected_answer: The Cash Handling SOP -- governs till assignment, opening/closing counts, mid-shift
+    drops, and safe access procedures.
+  relevant_docs:
+  - title: Cash Handling SOP
+    version: '1.0'
+  relevant_chunks:
+  - title: Cash Handling SOP
+    version: '1.0'
+    section: null
+    text: SOP ID:** SOP-CASH-009
+  answerable: true
+  difficulty: medium
+  tags:
+  - identifier
+  - cash_handling
+- id: multi_hop-01
+  category: multi_hop
+  question: A GOLD_TIER member returns an item they bought partly with points at a 25% clearance discount.
+    What happens to the points portion, and does the return affect their tier status?
+  expected_answer: The points portion is refunded back to the member's account (within 24 hours under
+    the current Loyalty Program Rules), the discount is applied proportionally across the points/cash
+    split before that refund is calculated, and the return does not affect tier status since no new spend
+    occurred to reverse -- this is the exact worked example in Loyalty Program Rules v2.0 Section 4, which
+    Returns Policy v3.0 Section 3.3 defers to.
+  relevant_docs:
+  - title: Loyalty Program Rules
+    version: '2.0'
+  - title: Returns Policy
+    version: '3.0'
+  relevant_chunks:
+  - title: Loyalty Program Rules
+    version: '2.0'
+    section: 4. Points Handling on Returns
+    text: null
+  - title: Returns Policy
+    version: '3.0'
+    section: 3. Exceptions > 3.3 Items Purchased Partly or Fully with Loyalty Points
+    text: null
+  answerable: true
+  difficulty: hard
+  tags:
+  - multi_hop
+  - loyalty
+  - returns
+- id: multi_hop-02
+  category: multi_hop
+  question: Does a price-matched item qualify for the shortened 14-day return window that applies to discounted
+    items?
+  expected_answer: No. A price match is explicitly not a promotional discount under the Discount Stacking
+    Rules, so Returns Policy Section 3.2's shortened window (for items discounted 20% or more) does not
+    apply to a price-matched item.
+  relevant_docs:
+  - title: Price Match Policy
+    version: '1.0'
+  - title: Returns Policy
+    version: '3.0'
+  relevant_chunks:
+  - title: Price Match Policy
+    version: '1.0'
+    section: 2. What Is Not a Price Match
+    text: null
+  - title: Returns Policy
+    version: '3.0'
+    section: 3. Exceptions > 3.1 Electronics; 3.2 Discounted Items
+    text: null
+  answerable: true
+  difficulty: hard
+  tags:
+  - multi_hop
+  - price_match
+  - returns
+- id: multi_hop-03
+  category: multi_hop
+  question: An employee buys a $100 item that's been marked down 30% to $70 using their employee discount.
+    What's the final price, and is it subject to the customer-facing 50% combined-discount cap?
+  expected_answer: $56. The employee discount is applied after the markdown price ($70), not the original
+    tag price, for a final price of $56 -- and it is not subject to the Discount Stacking Rules' 50% cap,
+    since that cap applies to customer promotions and the employee discount is a staff benefit the two
+    policies deliberately don't cross-apply.
+  relevant_docs:
+  - title: Employee Discount Policy
+    version: '1.0'
+  - title: Markdown Policy
+    version: null
+  relevant_chunks:
+  - title: Employee Discount Policy
+    version: '1.0'
+    section: 3. Interaction with Markdown/Clearance Pricing
+    text: null
+  - title: Markdown Policy
+    version: null
+    section: null
+    text: Markdown percentage is calculated
+  answerable: true
+  difficulty: hard
+  tags:
+  - multi_hop
+  - staff
+  - promotions
+- id: multi_hop-04
+  category: multi_hop
+  question: A customer's chargeback arrives after the store already processed a refund for the same transaction
+    through normal channels. Is this a strong or weak case for the store to dispute?
+  expected_answer: Strong case for dispute -- the customer has effectively attempted to be refunded twice,
+    since a refund was already issued via the Returns Policy before the chargeback was filed.
+  relevant_docs:
+  - title: Chargeback Handling Runbook
+    version: null
+  relevant_chunks:
+  - title: Chargeback Handling Runbook
+    version: null
+    section: null
+    text: Gathering Evidence
+  - title: Chargeback Handling Runbook
+    version: null
+    section: null
+    text: Refund already issued via RET-POL-001
+  answerable: true
+  difficulty: hard
+  tags:
+  - multi_hop
+  - chargebacks
+  - refunds
+- id: multi_hop-05
+  category: multi_hop
+  question: After the loyalty points double-credit incident, was the decision to build the points ledger
+    in-house (rather than use a commercial platform) reconsidered?
+  expected_answer: No. The ADR was explicitly not revisited -- the bug was an application-layer idempotency-key
+    defect in the accrual retry logic, independent of the underlying database/platform choice, and the
+    same bug class could have occurred against a commercial platform's API too if its retry contract were
+    misunderstood.
+  relevant_docs:
+  - title: Loyalty Platform Choice ADR
+    version: null
+  - title: Loyalty Double-Credit Postmortem
+    version: null
+  relevant_chunks:
+  - title: Loyalty Platform Choice ADR
+    version: null
+    section: null
+    text: A note on hindsight
+  - title: Loyalty Double-Credit Postmortem
+    version: null
+    section: null
+    text: Root Cause
+  answerable: true
+  difficulty: hard
+  tags:
+  - multi_hop
+  - loyalty
+  - architecture
+- id: multi_hop-06
+  category: multi_hop
+  question: A closing-shift discrepancy traces back to a specific refund transaction that appears in the
+    log but doesn't match the physical cash removed. What should the associate do?
+  expected_answer: This isn't a cash-handling failure in the sense the Cash Handling SOP otherwise covers
+    -- it should be escalated to the Failed Refund Runbook, Section 2, specifically the "No refund record,
+    but register shows cash removed" row, which routes it back to the Cash Handling SOP's till-discrepancy
+    process -- the two documents cross-reference each other for exactly this case.
+  relevant_docs:
+  - title: Cash Handling SOP
+    version: '1.0'
+  - title: Failed Refund Runbook
+    version: '1.0'
+  relevant_chunks:
+  - title: Cash Handling SOP
+    version: '1.0'
+    section: 6. When a Discrepancy Traces to a Refund
+    text: null
+  - title: Failed Refund Runbook
+    version: '1.0'
+    section: 2. Identify the Failure Mode
+    text: null
+  answerable: true
+  difficulty: hard
+  tags:
+  - multi_hop
+  - cash_handling
+  - refunds
+- id: multi_hop-07
+  category: multi_hop
+  question: An associate declines to approve a disputed final-sale tagging at the register. Who actually
+    has the authority to resolve it, and can a shift lead override that decision?
+  expected_answer: No -- a shift lead or store manager can override most "No"/"Manager may override" rows
+    in the Exception Matrix, but disputed final-sale tagging specifically requires escalation to a regional
+    manager and must not be overridden at the register.
+  relevant_docs:
+  - title: Returns Exception Matrix
+    version: '2.0'
+  relevant_chunks:
+  - title: Returns Exception Matrix
+    version: '2.0'
+    section: 2. Exception Table
+    text: null
+  - title: Returns Exception Matrix
+    version: '2.0'
+    section: 4. Manager Override Authority
+    text: null
+  answerable: true
+  difficulty: hard
+  tags:
+  - multi_hop
+  - returns
+- id: multi_hop-08
+  category: multi_hop
+  question: During the payment gateway outage, should stalled refunds have been retried?
+  expected_answer: 'No -- the Failed Refund Runbook''s guidance is not to retry during an active known
+    gateway incident, since retrying risks a duplicate refund once the gateway recovers. This is exactly
+    what happened with the 18 refunds stalled during the Payment Gateway Failure incident: none were retried,
+    all completed automatically once the gateway recovered, and no duplicates resulted.'
+  relevant_docs:
+  - title: Failed Refund Runbook
+    version: '1.0'
+  - title: Payment Gateway Failure Postmortem
+    version: null
+  relevant_chunks:
+  - title: Failed Refund Runbook
+    version: '1.0'
+    section: 3. Payment Gateway Timeout
+    text: null
+  - title: Payment Gateway Failure Postmortem
+    version: null
+    section: null
+    text: The 18 stalled refunds
+  answerable: true
+  difficulty: hard
+  tags:
+  - multi_hop
+  - refunds
+  - incidents
+- id: multi_hop-09
+  category: multi_hop
+  question: A customer's warranty claim on a 6-month-old item is denied for misuse. Are they automatically
+    entitled to a standard return instead?
+  expected_answer: Not automatically -- a denied warranty claim and an expired return window are independent
+    conditions. The customer may still be eligible for a standard return, but only if the item still falls
+    within the Returns Policy's applicable window for its category.
+  relevant_docs:
+  - title: Warranty Policy
+    version: '1.0'
+  - title: Returns Policy
+    version: '3.0'
+  relevant_chunks:
+  - title: Warranty Policy
+    version: '1.0'
+    section: null
+    text: independent conditions
+  - title: Returns Policy
+    version: '3.0'
+    section: 1. Standard Return Window
+    text: null
+  answerable: true
+  difficulty: hard
+  tags:
+  - multi_hop
+  - warranty
+  - returns
+- id: multi_hop-10
+  category: multi_hop
+  question: A corporate loyalty account is closed mid-year with unredeemed points on it. Are those points
+    forfeited, or do they follow the standard annual corporate batch-expiry schedule?
+  expected_answer: Forfeited immediately on closure, not carried to the next batch-expiry date -- account
+    closure (voluntary or fraud-related) forfeits all unredeemed points right away, regardless of which
+    expiry mechanic (standard rolling, or the corporate flat annual batch) would otherwise have applied
+    to them.
+  relevant_docs:
+  - title: Points Expiry Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: Points Expiry Policy
+    version: '1.0'
+    section: 5. Account Transfers and Closures
+    text: null
+  - title: Points Expiry Policy
+    version: '1.0'
+    section: 6. Corporate and Bulk Accounts
+    text: null
+  answerable: true
+  difficulty: hard
+  tags:
+  - multi_hop
+  - loyalty
+- id: unanswerable-01
+  category: unanswerable
+  question: What is the store's policy on accepting cryptocurrency as a payment method?
+  expected_answer: null
+  relevant_docs: []
+  relevant_chunks: []
+  answerable: false
+  difficulty: medium
+  tags:
+  - unanswerable
+- id: unanswerable-02
+  category: unanswerable
+  question: Does the store price-match against Amazon specifically?
+  expected_answer: null
+  relevant_docs: []
+  relevant_chunks: []
+  answerable: false
+  difficulty: medium
+  tags:
+  - unanswerable
+  - price_match
+- id: unanswerable-03
+  category: unanswerable
+  question: What is the maximum weight allowed for a freight (large-item) shipment?
+  expected_answer: null
+  relevant_docs: []
+  relevant_chunks: []
+  answerable: false
+  difficulty: medium
+  tags:
+  - unanswerable
+  - shipping
+- id: unanswerable-04
+  category: unanswerable
+  question: Is accidental water damage covered under the standard warranty?
+  expected_answer: null
+  relevant_docs: []
+  relevant_chunks: []
+  answerable: false
+  difficulty: medium
+  tags:
+  - unanswerable
+  - warranty
+- id: unanswerable-05
+  category: unanswerable
+  question: Does the company offer an employee referral bonus program?
+  expected_answer: null
+  relevant_docs: []
+  relevant_chunks: []
+  answerable: false
+  difficulty: medium
+  tags:
+  - unanswerable
+  - staff
+- id: unanswerable-06
+  category: unanswerable
+  question: What is the minimum age to open a store loyalty account?
+  expected_answer: null
+  relevant_docs: []
+  relevant_chunks: []
+  answerable: false
+  difficulty: medium
+  tags:
+  - unanswerable
+  - loyalty
+- id: unanswerable-07
+  category: unanswerable
+  question: Can an item purchased on a corporate business account be exchanged for a different size?
+  expected_answer: null
+  relevant_docs: []
+  relevant_chunks: []
+  answerable: false
+  difficulty: medium
+  tags:
+  - unanswerable
+  - returns
+- id: unanswerable-08
+  category: unanswerable
+  question: What is the store's policy on matching a competitor's Black Friday doorbuster price specifically?
+  expected_answer: null
+  relevant_docs: []
+  relevant_chunks: []
+  answerable: false
+  difficulty: medium
+  tags:
+  - unanswerable
+  - price_match
+- id: ambiguous-01
+  category: ambiguous
+  question: What's the return window?
+  expected_answer: 'Depends on category: 30 days standard, 15 days for electronics, 14 days for items
+    discounted 20%+ (current policy), and gift cards/personalized/perishable/final-sale items are not
+    returnable at all.'
+  relevant_docs:
+  - title: Returns Policy
+    version: '3.0'
+  relevant_chunks:
+  - title: Returns Policy
+    version: '3.0'
+    section: 1. Standard Return Window
+    text: null
+  - title: Returns Policy
+    version: '3.0'
+    section: 3. Exceptions > 3.1 Electronics; 3.2 Discounted Items
+    text: null
+  - title: Returns Policy
+    version: '3.0'
+    section: 2. Non-Returnable Items
+    text: null
+  answerable: true
+  difficulty: hard
+  tags:
+  - ambiguous
+  - returns
+- id: ambiguous-02
+  category: ambiguous
+  question: How much is the discount?
+  expected_answer: 'Depends which discount: 20% flat for the employee discount, up to 50% combined cap
+    for stacked customer promotions, or a markdown cadence of 20-70% depending on how long an item has
+    been on the floor -- these are three distinct, non-interchangeable mechanisms.'
+  relevant_docs:
+  - title: Employee Discount Policy
+    version: '1.0'
+  - title: Discount Stacking Rules
+    version: '1.0'
+  - title: Markdown Policy
+    version: null
+  relevant_chunks:
+  - title: Employee Discount Policy
+    version: '1.0'
+    section: 1. Standard Discount
+    text: null
+  - title: Discount Stacking Rules
+    version: '1.0'
+    section: 3. Maximum Combined Discount
+    text: null
+  - title: Markdown Policy
+    version: null
+    section: null
+    text: Markdown Cadence
+  answerable: true
+  difficulty: hard
+  tags:
+  - ambiguous
+  - promotions
+- id: ambiguous-03
+  category: ambiguous
+  question: When do points expire?
+  expected_answer: 'Depends on account type and activity: 18 months after the earn-month under the standard
+    rolling rule, immediately on 24 months of account inactivity, or as a single annual batch on December
+    31 for corporate/bulk accounts -- three different mechanics, not one rule.'
+  relevant_docs:
+  - title: Loyalty Program Rules
+    version: '2.0'
+  - title: Points Expiry Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: Loyalty Program Rules
+    version: '2.0'
+    section: 5. Points Expiry
+    text: null
+  - title: Points Expiry Policy
+    version: '1.0'
+    section: 3. Account Inactivity
+    text: null
+  - title: Points Expiry Policy
+    version: '1.0'
+    section: 6. Corporate and Bulk Accounts
+    text: null
+  answerable: true
+  difficulty: hard
+  tags:
+  - ambiguous
+  - loyalty
+- id: ambiguous-04
+  category: ambiguous
+  question: What happens if there's a discrepancy?
+  expected_answer: 'Depends which kind: a cash-till discrepancy follows the Cash Handling SOP''s dollar-threshold
+    escalation ladder, while an inventory discrepancy found during a stock take follows the Stock Take
+    SOP''s percentage-variance recount/review thresholds -- unrelated procedures that both use the word
+    "discrepancy."'
+  relevant_docs:
+  - title: Cash Handling SOP
+    version: '1.0'
+  - title: Stock Take SOP
+    version: null
+  relevant_chunks:
+  - title: Cash Handling SOP
+    version: '1.0'
+    section: 5. Closing Count and Discrepancy Reporting
+    text: null
+  - title: Stock Take SOP
+    version: null
+    section: null
+    text: A variance under 2%
+  answerable: true
+  difficulty: hard
+  tags:
+  - ambiguous
+  - cash_handling
+- id: ambiguous-05
+  category: ambiguous
+  question: Who can authorize an override?
+  expected_answer: 'Depends on context: for most Returns Exception Matrix rows, a shift lead or store
+    manager; for disputed final-sale tagging specifically, only a regional manager; for a non-emergency
+    schedule change, the affected employee has to agree, store management alone can''t impose it.'
+  relevant_docs:
+  - title: Returns Exception Matrix
+    version: '2.0'
+  - title: Shift Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: Returns Exception Matrix
+    version: '2.0'
+    section: 4. Manager Override Authority
+    text: null
+  - title: Returns Exception Matrix
+    version: '2.0'
+    section: 2. Exception Table
+    text: null
+  - title: Shift Policy
+    version: '1.0'
+    section: 1. Scheduling
+    text: null
+  answerable: true
+  difficulty: hard
+  tags:
+  - ambiguous
+  - returns
+  - staff
+- id: version_sensitive-01
+  category: version_sensitive
+  question: What is the current GOLD_TIER annual spend threshold?
+  expected_answer: $1,500 under the current Loyalty Program Rules v2.0 -- up from $1,000 under the superseded
+    v1.0.
+  relevant_docs:
+  - title: Loyalty Program Rules
+    version: '2.0'
+  relevant_chunks:
+  - title: Loyalty Program Rules
+    version: '2.0'
+    section: 1. Tier Structure
+    text: null
+  answerable: true
+  difficulty: medium
+  tags:
+  - version_sensitive
+  - loyalty
+- id: version_sensitive-02
+  category: version_sensitive
+  question: What is the current return window for an item discounted 20% or more?
+  expected_answer: 14 days under the current Returns Policy v3.0 -- shortened from the 30-day (i.e. standard)
+    window under the superseded v2.0, specifically to reduce return-driven margin loss on clearance-priced
+    inventory.
+  relevant_docs:
+  - title: Returns Policy
+    version: '3.0'
+  relevant_chunks:
+  - title: Returns Policy
+    version: '3.0'
+    section: 3. Exceptions > 3.1 Electronics; 3.2 Discounted Items
+    text: null
+  answerable: true
+  difficulty: medium
+  tags:
+  - version_sensitive
+  - returns
+- id: version_sensitive-03
+  category: version_sensitive
+  question: How many months after being earned do loyalty points currently expire?
+  expected_answer: 18 months under the current Loyalty Program Rules v2.0 -- extended from 12 months under
+    the superseded v1.0.
+  relevant_docs:
+  - title: Loyalty Program Rules
+    version: '2.0'
+  relevant_chunks:
+  - title: Loyalty Program Rules
+    version: '2.0'
+    section: 5. Points Expiry
+    text: null
+  answerable: true
+  difficulty: medium
+  tags:
+  - version_sensitive
+  - loyalty
+- id: version_sensitive-04
+  category: version_sensitive
+  question: Can a clearance-tagged item be exchanged for a different size or color outside the standard
+    return window?
+  expected_answer: Yes, under the current Returns Exception Matrix v2.0 -- this exception is new in v2.0;
+    associates were incorrectly declining legitimate size exchanges under the v1.0 matrix before this
+    clarification was added (v1.0 itself was never persisted as its own document, only referenced retrospectively).
+  relevant_docs:
+  - title: Returns Exception Matrix
+    version: '2.0'
+  relevant_chunks:
+  - title: Returns Exception Matrix
+    version: '2.0'
+    section: '3. New in This Version: Clearance-Tagged Item Exception'
+    text: null
+  answerable: true
+  difficulty: medium
+  tags:
+  - version_sensitive
+  - returns

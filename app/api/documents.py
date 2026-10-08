@@ -7,17 +7,19 @@ through the mailroom (T-M1.5) and the archive clerk's idempotent filing
 """
 from __future__ import annotations
 
+import json
 from dataclasses import asdict
 from datetime import date, datetime
 from typing import Any
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Response, status
+from fastapi import APIRouter, File, Form, HTTPException, Response, UploadFile, status
 from pydantic import BaseModel
 
 from app.core.db import get_pool
 from app.documents import get_document, ingest_document
-from app.ingestion import FetchStatus, FileSource, Source, URLSource
+from app.ingestion import FetchStatus, FileSource, RawDocument, Source, URLSource
+from app.ingestion.extract import extract_effective_date, extract_text, guess_kind
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
@@ -76,7 +78,7 @@ def ingest(request: IngestRequest, response: Response) -> IngestResponse:
         title=request.title,
         source_url=request.ref if isinstance(source, URLSource) else None,
         version=request.version,
-        effective_date=request.effective_date,
+        effective_date=request.effective_date or extract_effective_date(raw.text),
         supersedes=request.supersedes,
         metadata=request.metadata,
     )
@@ -85,6 +87,74 @@ def ingest(request: IngestRequest, response: Response) -> IngestResponse:
     # content already on file is a 200 — same request, same end state,
     # different status code because only one of them actually created
     # something. See GLOSSARY.md's idempotency entry.
+    response.status_code = status.HTTP_201_CREATED if result.created else status.HTTP_200_OK
+
+    return IngestResponse(
+        id=result.document.id,
+        version=result.document.version,
+        content_hash=result.document.content_hash,
+        index_status="not_indexed",
+        created=result.created,
+    )
+
+
+@router.post("/upload", response_model=IngestResponse)
+async def upload(
+    response: Response,
+    file: UploadFile = File(..., description="The document itself — PDF, DOCX, Markdown, or TXT."),
+    type: str = Form(...),
+    title: str = Form(...),
+    version: str | None = Form(None),
+    effective_date: date | None = Form(None, description="Optional — auto-detected from the document's own text if omitted (e.g. \"Effective: February 1, 2026\"); an explicit value here always wins over the guess."),
+    supersedes: UUID | None = Form(None),
+    metadata: str | None = Form(None, description="Optional JSON object, as a string (multipart forms can't carry nested JSON directly)."),
+) -> IngestResponse:
+    """
+    The actual "attach a file" endpoint — distinct from POST /ingest, which
+    only ever points at a ref (URL or server-local path) the server already
+    has access to. This one takes bytes the caller supplies directly, right
+    here in the request body, same as attaching a file in any other web
+    form. Reuses the exact same extraction (T-M1.5's extract_text/guess_kind
+    — pure functions, never cared whether the bytes came from a URLSource
+    fetch or an upload) and the exact same idempotent ingest_document()
+    (T-M1.7) the CLI and POST /ingest both already use — a fourth way in,
+    not a fourth copy of the pipeline.
+    """
+    raw_bytes = await file.read()
+    kind = guess_kind(file.content_type, file.filename or "")
+    text = extract_text(raw_bytes, kind)
+
+    if text is None:
+        raise HTTPException(
+            status_code=422,
+            detail=f"could not extract text from {file.filename!r} (content_type={file.content_type!r}, guessed kind={kind!r})",
+        )
+
+    try:
+        parsed_metadata = json.loads(metadata) if metadata else None
+    except json.JSONDecodeError as exc:
+        raise HTTPException(status_code=422, detail=f"metadata is not valid JSON: {exc}") from None
+
+    raw = RawDocument(
+        source_ref=file.filename or "upload",
+        content_type=file.content_type,
+        raw_bytes=raw_bytes,
+        text=text,
+        status=FetchStatus.OK,
+    )
+
+    result = ingest_document(
+        get_pool(),
+        raw,
+        type=type,
+        title=title,
+        source_url=None,
+        version=version,
+        effective_date=effective_date or extract_effective_date(text),
+        supersedes=supersedes,
+        metadata=parsed_metadata,
+    )
+
     response.status_code = status.HTTP_201_CREATED if result.created else status.HTTP_200_OK
 
     return IngestResponse(

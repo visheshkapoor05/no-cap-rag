@@ -388,7 +388,7 @@ Also required: handling malformed LLM output. Structured output requests fail so
 
 Implement by hand ([D-008](./DECISIONS.md)):
 
-**Retrieval:** Recall@K and MRR already exist — learned and built at M2 ([D-010](./DECISIONS.md)), because M3 needed them. New here: Precision@K (of what we returned, how much was relevant?) and NDCG (rank-position-weighted, credits getting good results near the top) — neither is needed before the full benchmark ladder at T-M4.14, which is why they wait until now.
+**Retrieval:** Recall@K and MRR already exist — learned and built at M2 ([D-010](./DECISIONS.md)), because M3 needed them. New here: Precision@K and R-Precision (of what we returned, how much was relevant? — R-Precision uses a per-question K so a question with few golden labels isn't unfairly penalized, see [D-014](./DECISIONS.md)) and NDCG (rank-position-weighted, credits getting good results near the top) — none needed before the full benchmark ladder at T-M4.14, which is why they wait until now.
 
 **Generation:** faithfulness (is every claim supported by cited evidence?) · answer correctness (vs. expected answer) · citation support rate (what fraction of claims carry a citation that actually supports them?)
 
@@ -399,7 +399,7 @@ Implement by hand ([D-008](./DECISIONS.md)):
 | # | Phase | Task |
 |---|---|---|
 | T-M4.1 | LEARN | Bi-encoder vs. cross-encoder; why two stages exist at all. |
-| T-M4.2 | LEARN | Precision@K and NDCG — hand-compute both on the M2 toy 5-query set (Recall@K/MRR were covered there). |
+| T-M4.2 | LEARN | Precision@K, R-Precision and NDCG — hand-compute all three on the M2 toy 5-query set (Recall@K/MRR were covered there). |
 | T-M4.3 | LEARN | LLM-judge rubric design and its known failure modes (position bias, verbosity bias, self-preference). |
 | T-M4.4 | PRACTICE | Run a local BGE cross-encoder over a fixed candidate set. Inspect what moved up, what moved down, and whether you agree. |
 | T-M4.5 | IMPLEMENT | `Reranker` interface + local cross-encoder implementation. |
