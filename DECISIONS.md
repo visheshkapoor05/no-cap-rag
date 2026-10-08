@@ -351,6 +351,9 @@ had already been created and pushed once — renamed to
 `feat/the-mailroom-opens` before anything merged, so no cleanup was needed
 beyond the rename itself.
 
+**Superseded by [D-018](#d-018--branch-names-go-back-to-technical-and-merged-branches-are-kept-not-deleted)**,
+reversing both halves of this decision after M1 shipped.
+
 ---
 
 ## D-013 · Sequential search, not a full chunking × retrieval grid — plus one targeted cross-check
@@ -620,6 +623,57 @@ that prompted it.
 **Reversible?** Yes, trivially — it's a thin new route on top of
 pre-existing, already-tested pipeline functions; nothing underneath it
 changed.
+
+---
+
+## D-018 · Branch names go back to technical, and merged branches are kept, not deleted
+
+**We're doing:** reversing both halves of
+[D-012](#d-012--main-stays-readme-only-milestone-branches-carry-the-analogy-names)
+after one milestone's worth of real use. Branches are now named for what
+they technically implement — `feat/m2-chunking-golden-set`, not
+`feat/filing-by-section` — and a branch is kept after its PR merges, not
+deleted.
+
+**Why — branch names:** D-012's bet was that an analogy name reads like a
+table of contents for the project's own story. In practice, reading the
+branch list requires already knowing `ANALOGY.md`'s vocabulary to mean
+anything — `feat/filing-by-section` tells you nothing about chunking,
+contextual prefixes, an embedding cache, or a golden set existing on that
+branch unless you already know "filing" means chunking in this project's
+own metaphor. A technical name is legible on its own, which matters more
+for a portfolio repo a stranger (or an interviewer) might scan cold than
+for an internal team already fluent in the project's private vocabulary.
+
+**Why — keep branches after merge:** `main` only ever holds squashed/merged
+history — walking into `git log` to find exactly where M1 ends and M2
+begins means hunting for the right merge commit. A kept branch is a direct,
+nameable pointer: `git checkout feat/m1-corpus-ingestion` (see below) shows
+exactly that milestone's code, nothing else, with zero commit-range
+archaeology. Costs nothing — a kept branch ref is a few bytes — and the
+previous "delete after merge" habit was solving a problem (branch-list
+clutter) smaller than the problem it created (losing a direct per-milestone
+reference).
+
+**What happens to the branches D-012 already produced:** `feat/the-mailroom-opens`
+(M1) was deleted under the old policy before this reversal — recreating a
+deleted branch ref to rename it retroactively isn't worth doing purely for
+a label, since M1's actual commits are already permanent in `main`'s
+history either way. `feat/filing-by-section` (M2, not yet merged at the
+time of this decision) was renamed to `feat/m2-chunking-golden-set` via
+GitHub's branch-rename endpoint, which migrates its already-open PR
+automatically rather than requiring a close-and-reopen.
+
+**Rejected:** keeping analogy names for narrative flavor and layering a
+technical description only in the PR title — rejected because the PR
+itself gets deleted from easy view once merged (or at best requires a
+search), while the branch name is what persists and stays directly
+checkout-able.
+
+**Caught by:** direct feedback partway through M2's own merge — the second
+time a branch name's real cost (needing `ANALOGY.md` open to even guess
+what a branch contains) was weighed against D-012's original benefit,
+rather than re-asserting the original call by default.
 
 ---
 
