@@ -1,6 +1,7 @@
 """The two research assistants and the manager who merges their shortlists
 — dense retrieval, BM25, and RRF fusion. See ../../ANALOGY.md."""
 from app.retrieval.dense import DenseRetriever
+from app.retrieval.fusion import FusionStrategy, RRFFusion, WeightedFusion
 from app.retrieval.indexing import index_all_chunks
 from app.retrieval.milvus_client import (
     CHUNK_ID_MAX_LEN,
@@ -28,4 +29,7 @@ __all__ = [
     "SparseRetriever",
     "tokenize",
     "index_all_chunks",
+    "FusionStrategy",
+    "RRFFusion",
+    "WeightedFusion",
 ]
