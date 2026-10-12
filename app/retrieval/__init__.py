@@ -11,6 +11,7 @@ from app.retrieval.milvus_client import (
     ensure_collection,
     get_client,
 )
+from app.retrieval.sparse import SparseRetriever, tokenize
 from app.retrieval.strategy import RetrievalStrategy, RetrievedChunk
 
 __all__ = [
@@ -24,5 +25,7 @@ __all__ = [
     "RetrievalStrategy",
     "RetrievedChunk",
     "DenseRetriever",
+    "SparseRetriever",
+    "tokenize",
     "index_all_chunks",
 ]
