@@ -21,6 +21,7 @@ from app.core.db import get_pool, migrate
 from app.corpus_plan import PlannedIngest, plan_public, plan_synthetic
 from app.documents import ingest_document, update_supersedes
 from app.ingestion import FetchStatus, FileSource, Source, URLSource
+from app.retrieval import ensure_collection
 
 
 @dataclass(frozen=True)
@@ -116,6 +117,7 @@ def main(argv: list[str] | None = None) -> int:
 
     pool = get_pool()
     migrate(pool)
+    ensure_collection()
 
     plans: list[PlannedIngest] = []
     if args.scope in ("synthetic", "all"):

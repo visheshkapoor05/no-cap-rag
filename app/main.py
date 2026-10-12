@@ -14,6 +14,7 @@ from app.core.db import close_pool, get_pool
 from app.core.exceptions import register_exception_handlers
 from app.core.logging import configure_logging
 from app.core.middleware import RequestLoggingMiddleware
+from app.retrieval import close_client, get_client
 
 
 @asynccontextmanager
@@ -23,14 +24,18 @@ async def lifespan(app: FastAPI):
       1. Open the doors: configure logging once, before anything else runs.
       2. Open the archive room's connections once, at startup — a
          connection pool (see GLOSSARY.md), not one connection per visitor.
-         (Milvus/Redis join here in later milestones.)
-      3. Hand control to the running office for as long as it's open.
-      4. Close the archive room's connections cleanly on shutdown.
+      3. Open the scent-sorted filing cabinet's connection too (T-M3.6) —
+         same once-at-startup rule, not once per request. (Redis joins
+         here in a later milestone.)
+      4. Hand control to the running office for as long as it's open.
+      5. Close every connection cleanly on shutdown.
     """
     settings = get_settings()
     configure_logging(settings.log_level)
     get_pool()
+    get_client()
     yield
+    close_client()
     close_pool()
 
 

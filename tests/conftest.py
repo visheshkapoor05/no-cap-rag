@@ -11,6 +11,11 @@ import os
 # someone had just ingested to look at.
 os.environ["POSTGRES_DB"] = f"{os.environ.get('POSTGRES_DB', 'retail-rag')}-test"
 
+# Same D-016 reasoning applied to Milvus (T-M3.6): a test collection
+# distinct from the dev one, so a test's own cleanup never touches
+# whatever vectors a human has indexed for manual exploration.
+os.environ["MILVUS_COLLECTION"] = f"{os.environ.get('MILVUS_COLLECTION', 'chunk_embeddings')}_test"
+
 import psycopg
 import pytest
 from fastapi.testclient import TestClient
@@ -53,7 +58,7 @@ def pg_pool():
     """One real connection pool for the whole test session, migrated once,
     pointed at `<dbname>-test` (see the os.environ override at the top of
     this file) — never the database a human is using for manual exploration.
-    Requires Postgres reachable (e.g. `docker compose up -d postgres`) —
+    Requires Postgres reachable (e.g. `docker compose up -d postgres`) --
     these are integration tests against the real schema, not a mock."""
     _ensure_database_exists(get_settings().postgres.db)
     pool = get_pool()
