@@ -67,6 +67,15 @@ def insert_chunks(
     return inserted
 
 
+def get_all_chunks(pool: ConnectionPool) -> list[ChunkRecord]:
+    """Every chunk in the corpus, regardless of document -- what
+    SparseRetriever (T-M3.9) builds its in-memory BM25 index from, and
+    what indexing.py (T-M3.8 support) embeds into Milvus."""
+    with pool.connection() as conn:
+        rows = conn.execute(f"SELECT {_SELECT_COLUMNS} FROM chunks ORDER BY created_at").fetchall()
+    return [_row_to_record(row) for row in rows]
+
+
 def get_chunks_for_document(pool: ConnectionPool, document_id: UUID) -> list[ChunkRecord]:
     with pool.connection() as conn:
         rows = conn.execute(
