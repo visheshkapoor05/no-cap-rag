@@ -220,3 +220,4 @@ __marimo__/
 # Embedding cache (T-M2.6) -- regenerable, large, and real API keys may
 # touch it indirectly via embed_fn; never commit it.
 .embedding_cache/
+scripts/blueprint_artifact.out.html
