@@ -67,3 +67,21 @@ class GeminiEmbeddingProvider:
             text, f"{MODEL_ID}:query",
             lambda t: self._call_gemini(t, "RETRIEVAL_QUERY"),
         )
+
+
+_provider: GeminiEmbeddingProvider | None = None
+
+
+def get_embedding_provider() -> GeminiEmbeddingProvider:
+    """Built once, lazily — reuses one genai.Client and one EmbeddingCache
+    connection across every request, same singleton pattern as
+    get_pool()/get_client()."""
+    global _provider
+    if _provider is None:
+        _provider = GeminiEmbeddingProvider()
+    return _provider
+
+
+def close_embedding_provider() -> None:
+    global _provider
+    _provider = None

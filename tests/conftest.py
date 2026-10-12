@@ -102,3 +102,27 @@ def full_corpus_chunks(pg_pool):
         chunks = chunk_with_context(raw.text, title=plan.title, version=plan.version)
         insert_chunks(pg_pool, document.id, chunks)
     return pg_pool
+
+
+@pytest.fixture
+def indexed_test_corpus(client, full_corpus_chunks):
+    """T-M3.11: the real test corpus, also embedded into the Milvus TEST
+    collection -- `client`'s lifespan builds SparseRetriever's module
+    -level singleton once, lazily, against whatever's in Postgres at that
+    moment; if that happens before this fixture populates data, the
+    singleton would go stale for the rest of the session. `client` is
+    listed first so its lifespan runs before this fixture resets the
+    singleton, and closing it here forces the NEXT get_sparse_retriever()
+    call (made inside the real /retrieve route handler, after this
+    fixture returns) to rebuild against the now-real data. Re-embedding
+    the same chunk text is a cache hit (T-M2.6) -- zero new Gemini cost,
+    just a Postgres fetch + Milvus upsert."""
+    from app.embeddings.gemini import get_embedding_provider
+    from app.retrieval import ensure_collection, index_all_chunks
+    from app.retrieval.sparse import close_sparse_retriever
+
+    ensure_collection()
+    index_all_chunks(full_corpus_chunks, get_embedding_provider())
+    close_sparse_retriever()
+    yield full_corpus_chunks
+    close_sparse_retriever()

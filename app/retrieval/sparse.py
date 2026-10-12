@@ -19,6 +19,7 @@ from psycopg_pool import ConnectionPool
 from rank_bm25 import BM25Okapi
 
 from app.chunking import get_all_chunks
+from app.core.db import get_pool
 from app.retrieval.strategy import RetrievedChunk
 
 # Keeps hyphenated alphanumeric codes like "pos-err-3021" as one token
@@ -53,3 +54,23 @@ class SparseRetriever:
             for i in ranked
             if scores[i] > 0  # a zero score is "no term matched", not a real hit
         ]
+
+
+_retriever: SparseRetriever | None = None
+
+
+def get_sparse_retriever() -> SparseRetriever:
+    """Built once, lazily — tokenizing and indexing the whole corpus on
+    every request would be wasteful (D-005's "in-memory" is only cheap if
+    it's built once). Same singleton pattern as get_pool()/get_client()."""
+    global _retriever
+    if _retriever is None:
+        _retriever = SparseRetriever(get_pool())
+    return _retriever
+
+
+def close_sparse_retriever() -> None:
+    """Mainly here so tests can force a rebuild against fresh data —
+    same role as close_pool()/close_client()."""
+    global _retriever
+    _retriever = None

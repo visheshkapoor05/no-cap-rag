@@ -76,6 +76,20 @@ def get_all_chunks(pool: ConnectionPool) -> list[ChunkRecord]:
     return [_row_to_record(row) for row in rows]
 
 
+def get_chunks_by_ids(pool: ConnectionPool, chunk_ids: list[str]) -> dict[str, ChunkRecord]:
+    """Resolves a fused ranking's bare chunk_ids (T-M3.10's output) back
+    to real content — the /retrieve endpoint's (T-M3.11) one join against
+    Postgres, since neither Milvus nor SparseRetriever carry chunk text."""
+    if not chunk_ids:
+        return {}
+    with pool.connection() as conn:
+        rows = conn.execute(
+            f"SELECT {_SELECT_COLUMNS} FROM chunks WHERE id = ANY(%s)",
+            (chunk_ids,),
+        ).fetchall()
+    return {str(row["id"]): _row_to_record(row) for row in rows}
+
+
 def get_chunks_for_document(pool: ConnectionPool, document_id: UUID) -> list[ChunkRecord]:
     with pool.connection() as conn:
         rows = conn.execute(

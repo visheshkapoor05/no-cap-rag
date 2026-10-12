@@ -6,6 +6,7 @@ from app.chunking.models import ChunkRecord
 from app.chunking.registry import (
     delete_chunks_for_document,
     get_all_chunks,
+    get_chunks_by_ids,
     get_chunks_for_document,
     insert_chunks,
 )
@@ -22,5 +23,6 @@ __all__ = [
     "insert_chunks",
     "get_chunks_for_document",
     "get_all_chunks",
+    "get_chunks_by_ids",
     "delete_chunks_for_document",
 ]
