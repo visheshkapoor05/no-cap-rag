@@ -5,7 +5,7 @@ against this rulebook before the office is allowed to open. See
 """
 from functools import lru_cache
 
-from pydantic import Field
+from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -55,6 +55,16 @@ class MilvusSettings(BaseSettings):
         return f"http://{self.host}:{self.port}"
 
 
+class GeminiSettings(BaseSettings):
+    """Credentials for the embedding/generation provider (T-M3.7, D-003).
+    `SecretStr` so the key never shows up in a `repr()`, a log line, or an
+    accidental print of the settings object."""
+
+    model_config = SettingsConfigDict(env_prefix="GEMINI_", env_file=".env", extra="ignore")
+
+    api_key: SecretStr = SecretStr("")
+
+
 class Settings(BaseSettings):
     """
     The office's operating manual, assembled once at startup.
@@ -79,6 +89,7 @@ class Settings(BaseSettings):
     postgres: PostgresSettings = Field(default_factory=PostgresSettings)
     redis: RedisSettings = Field(default_factory=RedisSettings)
     milvus: MilvusSettings = Field(default_factory=MilvusSettings)
+    gemini: GeminiSettings = Field(default_factory=GeminiSettings)
 
 
 @lru_cache
