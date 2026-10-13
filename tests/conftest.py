@@ -116,12 +116,25 @@ def indexed_test_corpus(client, full_corpus_chunks):
     call (made inside the real /retrieve route handler, after this
     fixture returns) to rebuild against the now-real data. Re-embedding
     the same chunk text is a cache hit (T-M2.6) -- zero new Gemini cost,
-    just a Postgres fetch + Milvus upsert."""
+    just a Postgres fetch + Milvus upsert.
+
+    Drops and recreates the Milvus TEST collection first, every time --
+    `full_corpus_chunks` gives every chunk a brand-new UUID each run
+    (delete-then-reinsert), so without this, Milvus would accumulate one
+    stale generation of orphaned vectors per test that uses this fixture,
+    with no document left in Postgres for `_resolve()` to match them
+    against. A dense search's top-k can then land entirely on that
+    debris, silently returning zero real results (caught for real by a
+    full CI run of the suite, not assumed)."""
     from app.embeddings.gemini import get_embedding_provider
-    from app.retrieval import ensure_collection, index_all_chunks
+    from app.retrieval import ensure_collection, get_client, index_all_chunks
     from app.retrieval.sparse import close_sparse_retriever
 
-    ensure_collection()
+    milvus_client = get_client()
+    collection = get_settings().milvus.collection
+    if milvus_client.has_collection(collection_name=collection):
+        milvus_client.drop_collection(collection_name=collection)
+    ensure_collection(milvus_client)
     index_all_chunks(full_corpus_chunks, get_embedding_provider())
     close_sparse_retriever()
     yield full_corpus_chunks
