@@ -36,7 +36,17 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements-dev.txt
 
+      # T-M3.5/T-M3.6: dense retrieval needs a real Milvus, not a mock --
+      # same three services (etcd, MinIO, standalone) as docker-compose.yml,
+      # brought up the same way a human would with `docker compose up`.
+      # `--wait` blocks until every container's own healthcheck (defined in
+      # docker-compose.yml) passes, so pytest never starts against a
+      # not-yet-ready Milvus.
+      - name: Start Milvus (etcd + MinIO + standalone)
+        run: docker compose up -d --wait --wait-timeout 240 milvus
+
       - name: Run tests
         run: pytest -v
         env:
           POSTGRES_HOST: localhost
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
