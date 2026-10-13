@@ -5,14 +5,14 @@ against this rulebook before the office is allowed to open. See
 """
 from functools import lru_cache
 
-from pydantic import Field
+from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class PostgresSettings(BaseSettings):
     """The archive room's address — where the master ledger lives."""
 
-    model_config = SettingsConfigDict(env_prefix="POSTGRES_", extra="ignore")
+    model_config = SettingsConfigDict(env_prefix="POSTGRES_", env_file=".env", extra="ignore")
 
     host: str = "localhost"
     port: int = 5432
@@ -28,7 +28,7 @@ class PostgresSettings(BaseSettings):
 class RedisSettings(BaseSettings):
     """The desk drawer where recently-used folders are kept close at hand."""
 
-    model_config = SettingsConfigDict(env_prefix="REDIS_", extra="ignore")
+    model_config = SettingsConfigDict(env_prefix="REDIS_", env_file=".env", extra="ignore")
 
     host: str = "localhost"
     port: int = 6379
@@ -36,6 +36,33 @@ class RedisSettings(BaseSettings):
     @property
     def url(self) -> str:
         return f"redis://{self.host}:{self.port}/0"
+
+
+class MilvusSettings(BaseSettings):
+    """The scent-sorted filing cabinet's address — where the dense vector
+    index lives (T-M3.6). `collection` is overridden per-test the same way
+    D-016 overrides `POSTGRES_DB`, so a test run's vectors never land in
+    the collection a human is exploring."""
+
+    model_config = SettingsConfigDict(env_prefix="MILVUS_", env_file=".env", extra="ignore")
+
+    host: str = "localhost"
+    port: int = 19530
+    collection: str = "chunk_embeddings"
+
+    @property
+    def uri(self) -> str:
+        return f"http://{self.host}:{self.port}"
+
+
+class GeminiSettings(BaseSettings):
+    """Credentials for the embedding/generation provider (T-M3.7, D-003).
+    `SecretStr` so the key never shows up in a `repr()`, a log line, or an
+    accidental print of the settings object."""
+
+    model_config = SettingsConfigDict(env_prefix="GEMINI_", env_file=".env", extra="ignore")
+
+    api_key: SecretStr = SecretStr("")
 
 
 class Settings(BaseSettings):
@@ -61,6 +88,8 @@ class Settings(BaseSettings):
 
     postgres: PostgresSettings = Field(default_factory=PostgresSettings)
     redis: RedisSettings = Field(default_factory=RedisSettings)
+    milvus: MilvusSettings = Field(default_factory=MilvusSettings)
+    gemini: GeminiSettings = Field(default_factory=GeminiSettings)
 
 
 @lru_cache

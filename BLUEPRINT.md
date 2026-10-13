@@ -570,25 +570,29 @@ Swap FLAT → HNSW and **measure the recall traded for the speed gained** ([D-00
 
 ## 11b. Git &amp; release workflow
 
-The PRD names "V1/V2/V3 GitHub releases" as a portfolio deliverable, which means the git history is part of what's being assessed. A repo with one commit saying "initial commit" undercuts the story regardless of code quality.
+The PRD names "V1/V2/V3 GitHub releases" as a portfolio deliverable, which means the git history is part of what's being assessed. A repo with one commit saying "initial commit" undercuts the story regardless of code quality — and so does a repo with one commit per *milestone*, which is the same problem one level up ([D-019](./DECISIONS.md)).
 
 **The loop, per milestone:**
 
 ```
-git switch -c feat/m3-hybrid-retrieval
-  → commit as you go, one logical change per commit
-  → push → open a PR against main
-  → CI runs green → self-review the diff → merge → delete branch
+git switch -c feat/m3-hybrid-retrieval      ← created at the START of the milestone's work
+  → commit as each significant change lands, one logical change per commit
+    (don't let the milestone's real work pile up uncommitted — see D-019)
+  → push regularly, not just once at the end
+  → when the milestone's own [GIT] task comes up: open a PR against main
+  → CI runs green → self-review the diff → merge
+  → branch is kept, never deleted (D-018)
 ```
 
-**Why PRs when you're solo:** the PR diff is the only moment you read your own week's work as a whole. It catches the debug print, the hardcoded path, the committed `.env`. It also produces a browsable record of how the system evolved — exactly what a reviewer of your portfolio clicks through.
+**Why PRs when you're solo:** the PR diff is the only moment you read your own week's work as a whole. It catches the debug print, the hardcoded path, the committed `.env`. It also produces a browsable record of how the system evolved — exactly what a reviewer of your portfolio clicks through. This still works even with incremental commits throughout — the PR diff is still the full milestone's changes, just arriving as a branch that already has an honest commit history instead of being assembled from scratch at review time.
 
 | Convention | Rule | Why |
 |---|---|---|
 | Branch names | `feat/mN-short-name`, `fix/…`, `docs/…` | Milestone traceable from the branch name alone |
-| Commits | Conventional commits — `feat:`, `fix:`, `docs:`, `test:`, `chore:` | Makes CHANGELOG generation mechanical rather than archaeological |
+| Commits | Conventional commits — `feat:`, `fix:`, `docs:`, `test:`, `chore:` — **made as you go, not batched at milestone end** ([D-019](./DECISIONS.md)) | Makes CHANGELOG generation mechanical rather than archaeological, and keeps the git history honest about when work actually happened |
 | Never commit | `.env`, API keys, `.venv/`, embeddings cache, `__pycache__` | A leaked key in git history survives deletion — it stays in the objects forever |
 | Always commit | The corpus, golden set, configs, **eval results** | Reproducibility is the point; a reader must be able to re-run your benchmark |
+| Branches after merge | Kept, never deleted ([D-018](./DECISIONS.md)) | A kept branch is a direct, nameable pointer to exactly that milestone's code — no commit-range archaeology in `main`'s squashed history |
 | Tags | `v1.0.0` at M4, `v2.0.0` at M7, `v3.0.0` at M10 | The three PRD-mandated releases |
 | Releases | GitHub Release per tag, benchmark table in the notes | The numbers are the headline — put them where they're seen first |
 

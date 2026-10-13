@@ -14,6 +14,7 @@ from __future__ import annotations
 import hashlib
 import pickle
 import sqlite3
+import threading
 from pathlib import Path
 from typing import Callable
 
@@ -44,24 +45,34 @@ class EmbeddingCache:
     def __init__(self, path: Path | str = DEFAULT_CACHE_PATH) -> None:
         self._path = Path(path)
         self._path.parent.mkdir(parents=True, exist_ok=True)
-        self._conn = sqlite3.connect(self._path)
+        # check_same_thread=False: this cache is built once in the app's
+        # lifespan but FastAPI runs sync route handlers in a threadpool,
+        # a different OS thread per request than the one that opened this
+        # connection -- sqlite3 refuses cross-thread use by default. The
+        # lock below is what actually makes that safe (sqlite3 connections
+        # still aren't safe for concurrent access from multiple threads at
+        # once, only sequential use from varying threads).
+        self._conn = sqlite3.connect(self._path, check_same_thread=False)
+        self._lock = threading.Lock()
         self._conn.execute(_CREATE_TABLE)
         self._conn.commit()
 
     def get(self, text: str, model_id: str) -> list[float] | None:
         key = _cache_key(text, model_id)
-        row = self._conn.execute(
-            "SELECT vector FROM embedding_cache WHERE cache_key = ?", (key,)
-        ).fetchone()
+        with self._lock:
+            row = self._conn.execute(
+                "SELECT vector FROM embedding_cache WHERE cache_key = ?", (key,)
+            ).fetchone()
         return pickle.loads(row[0]) if row else None
 
     def set(self, text: str, model_id: str, vector: list[float]) -> None:
         key = _cache_key(text, model_id)
-        self._conn.execute(
-            "INSERT OR REPLACE INTO embedding_cache (cache_key, vector) VALUES (?, ?)",
-            (key, pickle.dumps(vector)),
-        )
-        self._conn.commit()
+        with self._lock:
+            self._conn.execute(
+                "INSERT OR REPLACE INTO embedding_cache (cache_key, vector) VALUES (?, ?)",
+                (key, pickle.dumps(vector)),
+            )
+            self._conn.commit()
 
     def get_or_embed(
         self, text: str, model_id: str, embed_fn: Callable[[str], list[float]]

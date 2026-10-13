@@ -17,10 +17,13 @@ from uuid import UUID
 
 from psycopg_pool import ConnectionPool
 
+from app.chunking import chunk_with_context, delete_chunks_for_document, insert_chunks
 from app.core.db import get_pool, migrate
 from app.corpus_plan import PlannedIngest, plan_public, plan_synthetic
 from app.documents import ingest_document, update_supersedes
+from app.embeddings import GeminiEmbeddingProvider
 from app.ingestion import FetchStatus, FileSource, Source, URLSource
+from app.retrieval import ensure_collection, index_all_chunks
 
 
 @dataclass(frozen=True)
@@ -43,6 +46,13 @@ def ingest_plan(pool: ConnectionPool, plans: list[PlannedIngest]) -> list[Ingest
     document has a real Postgres id: a document can't reference another
     document's id before that id exists, and processing order in the
     corpus directory isn't something this function should have to rely on.
+
+    Also chunks every document (T-M2.4/T-M2.5's structure-aware chunker +
+    contextual prefix) right after it's ingested — this was previously
+    only wired into tests/conftest.py's fixture, never into the real CLI,
+    which left the dev database's `chunks` table empty on a plain
+    `ingest` run. delete-then-reinsert makes re-running this idempotent
+    for chunks the same way `ingest_document` already is for documents.
     """
     outcomes: list[IngestOutcome] = []
     id_by_frontmatter_id: dict[str, UUID] = {}
@@ -71,6 +81,10 @@ def ingest_plan(pool: ConnectionPool, plans: list[PlannedIngest]) -> list[Ingest
             id_by_frontmatter_id[plan.frontmatter_id] = result.document.id
         if plan.supersedes_frontmatter_id:
             pending_supersedes.append((result.document.id, plan.supersedes_frontmatter_id))
+
+        delete_chunks_for_document(pool, result.document.id)
+        chunks = chunk_with_context(raw.text, title=plan.title, version=plan.version)
+        insert_chunks(pool, result.document.id, chunks)
 
         outcomes.append(IngestOutcome(plan.ref, plan.title, "created" if result.created else "duplicate"))
 
@@ -104,7 +118,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="python -m app.cli")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    ingest_parser = subparsers.add_parser("ingest", help="Ingest the corpus into Postgres")
+    ingest_parser = subparsers.add_parser("ingest", help="Ingest + chunk the corpus into Postgres")
     ingest_parser.add_argument(
         "--scope",
         choices=["synthetic", "public", "all"],
@@ -112,10 +126,21 @@ def main(argv: list[str] | None = None) -> int:
         help="synthetic: 28 corpus files, offline. public: 16 live URLs, hits the real internet. all: both.",
     )
 
+    subparsers.add_parser(
+        "index",
+        help="Embed every chunk (Gemini, real API calls) and upsert into Milvus (T-M3.8)",
+    )
+
     args = parser.parse_args(argv)
 
     pool = get_pool()
     migrate(pool)
+    ensure_collection()
+
+    if args.command == "index":
+        count = index_all_chunks(pool, GeminiEmbeddingProvider())
+        print(f"{count} chunks indexed into Milvus")
+        return 0
 
     plans: list[PlannedIngest] = []
     if args.scope in ("synthetic", "all"):

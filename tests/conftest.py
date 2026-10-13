@@ -11,6 +11,11 @@ import os
 # someone had just ingested to look at.
 os.environ["POSTGRES_DB"] = f"{os.environ.get('POSTGRES_DB', 'retail-rag')}-test"
 
+# Same D-016 reasoning applied to Milvus (T-M3.6): a test collection
+# distinct from the dev one, so a test's own cleanup never touches
+# whatever vectors a human has indexed for manual exploration.
+os.environ["MILVUS_COLLECTION"] = f"{os.environ.get('MILVUS_COLLECTION', 'chunk_embeddings')}_test"
+
 import psycopg
 import pytest
 from fastapi.testclient import TestClient
@@ -53,7 +58,7 @@ def pg_pool():
     """One real connection pool for the whole test session, migrated once,
     pointed at `<dbname>-test` (see the os.environ override at the top of
     this file) — never the database a human is using for manual exploration.
-    Requires Postgres reachable (e.g. `docker compose up -d postgres`) —
+    Requires Postgres reachable (e.g. `docker compose up -d postgres`) --
     these are integration tests against the real schema, not a mock."""
     _ensure_database_exists(get_settings().postgres.db)
     pool = get_pool()
@@ -97,3 +102,40 @@ def full_corpus_chunks(pg_pool):
         chunks = chunk_with_context(raw.text, title=plan.title, version=plan.version)
         insert_chunks(pg_pool, document.id, chunks)
     return pg_pool
+
+
+@pytest.fixture
+def indexed_test_corpus(client, full_corpus_chunks):
+    """T-M3.11: the real test corpus, also embedded into the Milvus TEST
+    collection -- `client`'s lifespan builds SparseRetriever's module
+    -level singleton once, lazily, against whatever's in Postgres at that
+    moment; if that happens before this fixture populates data, the
+    singleton would go stale for the rest of the session. `client` is
+    listed first so its lifespan runs before this fixture resets the
+    singleton, and closing it here forces the NEXT get_sparse_retriever()
+    call (made inside the real /retrieve route handler, after this
+    fixture returns) to rebuild against the now-real data. Re-embedding
+    the same chunk text is a cache hit (T-M2.6) -- zero new Gemini cost,
+    just a Postgres fetch + Milvus upsert.
+
+    Drops and recreates the Milvus TEST collection first, every time --
+    `full_corpus_chunks` gives every chunk a brand-new UUID each run
+    (delete-then-reinsert), so without this, Milvus would accumulate one
+    stale generation of orphaned vectors per test that uses this fixture,
+    with no document left in Postgres for `_resolve()` to match them
+    against. A dense search's top-k can then land entirely on that
+    debris, silently returning zero real results (caught for real by a
+    full CI run of the suite, not assumed)."""
+    from app.embeddings.gemini import get_embedding_provider
+    from app.retrieval import ensure_collection, get_client, index_all_chunks
+    from app.retrieval.sparse import close_sparse_retriever
+
+    milvus_client = get_client()
+    collection = get_settings().milvus.collection
+    if milvus_client.has_collection(collection_name=collection):
+        milvus_client.drop_collection(collection_name=collection)
+    ensure_collection(milvus_client)
+    index_all_chunks(full_corpus_chunks, get_embedding_provider())
+    close_sparse_retriever()
+    yield full_corpus_chunks
+    close_sparse_retriever()
