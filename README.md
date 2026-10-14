@@ -29,13 +29,24 @@ in Postgres, expose it over `POST /documents/ingest` / `POST
 /documents/upload` (real file attach) / `GET /documents/{id}`, and rebuild
 the whole thing from one CLI command.
 
-**M2 — Chunking & Seed Golden Set, in progress on `feat/filing-by-section`.**
+**M2 — Chunking & Seed Golden Set: done, merged to `main`.**
 Structure-aware chunking with a contextual prefix (`app/chunking/`), a
 disk-backed embedding cache (`app/embeddings/`), hand-written Recall@K/MRR
 (`app/evaluation/`), and a 50-question golden set resolved against the real,
 fully-chunked corpus (`evals/golden_set/`) — see [EVALUATION.md](./EVALUATION.md)
-for the methodology. Dense/BM25 retrieval, reranking, and generation don't
-exist yet — those start at M3/M4.
+for the methodology.
+
+**M3 — Dense, BM25 & Hybrid Retrieval: done, on `feat/m3-hybrid-retrieval`.**
+Real dense retrieval over Milvus (`app/retrieval/dense.py`, FLAT index +
+COSINE, D-006), BM25 over the real corpus (`app/retrieval/sparse.py`), two
+fusion strategies — RRF and weighted (`app/retrieval/fusion.py`) — behind
+one `POST /retrieve` endpoint (`app/api/retrieve.py`) with per-stage timing.
+Measured for real against the full 50-question golden set, 4 configs ×
+Recall@1/5/10 × MRR, overall and per category, plus a chunking cross-check
+confirming M2's structure-aware call under the retrieval method that
+actually ships: [`evals/results/M3_retrieval.md`](./evals/results/M3_retrieval.md).
+Reranking, generation, and claim verification don't exist yet — those start
+at M4+.
 
 ## Quick start
 
@@ -49,29 +60,39 @@ uvicorn app.main:app --reload
 curl http://127.0.0.1:8000/health
 ```
 
-Full stack, with Docker Compose (API + Postgres + Redis):
+Full stack, with Docker Compose (API + Postgres + Redis + Milvus/etcd/MinIO
+for dense retrieval, T-M3.5/T-M3.6):
 
 ```bash
 docker compose up --build
 curl http://127.0.0.1:8000/health
 ```
 
-Just Postgres, for local (non-Docker) development against the real database
-(needed for the ingestion CLI, or running the test suite):
+Needs `GEMINI_API_KEY=...` in `.env` (copy from `.env.example`) for any
+embedding call — real dense retrieval, `python -m app.cli index`, and most
+of the test suite all hit the real Gemini API (cached per-text, T-M2.6, so
+re-running costs nothing on a second pass).
+
+Just Postgres + Milvus, for local (non-Docker) development against the real
+database/vector store (needed for the ingestion CLI, the `index` subcommand,
+or running the test suite):
 
 ```bash
-docker compose up -d postgres
+docker compose up -d postgres milvus   # milvus brings up etcd + MinIO + standalone too
 ```
 
-Rebuild the entire corpus in Postgres from what's committed in this repo:
+Rebuild the entire corpus in Postgres from what's committed in this repo
+(chunking now happens automatically as part of ingest):
 
 ```bash
 python -m app.cli ingest --scope synthetic   # 28 files, offline, deterministic
 python -m app.cli ingest --scope public      # 16 live URLs, hits the real internet
 python -m app.cli ingest --scope all         # both
+python -m app.cli index                      # embeds every chunk + upserts into Milvus
 ```
 
-Run the tests (needs Postgres running — see above):
+Run the tests (needs Postgres, Milvus, and a real `GEMINI_API_KEY` — see
+above; CI brings up the same stack from clean, see `.github/workflows/ci.yml`):
 
 ```bash
 pytest -v
@@ -93,6 +114,7 @@ app/
   api/
     health.py           — /health
     documents.py          — POST /documents/ingest, GET /documents/{id}
+    retrieve.py             — POST /retrieve (dense/bm25/hybrid_rrf/hybrid_weighted, T-M3.11)
   ingestion/
     source.py             — the Source interface + RawDocument + FetchStatus
     url_source.py           — fetches a public URL
@@ -103,12 +125,31 @@ app/
     ingest.py                  — the idempotent insert-or-skip decision
     hashing.py                  — content-hash computation
     models.py                    — the Document dataclass
+  chunking/
+    chunker.py                   — structure-aware chunking + size guards (T-M2.4)
+    contextual.py                  — contextual prefix (T-M2.5)
+    registry.py                     — Postgres reads/writes for the chunks table
+  embeddings/
+    gemini.py                       — Gemini embedding provider (task_type-aware, T-M3.7)
+    cache.py                         — disk-backed embedding cache (T-M2.6)
+  retrieval/
+    milvus_client.py                  — Milvus connection + FLAT/COSINE collection (T-M3.6)
+    dense.py                           — DenseRetriever (T-M3.8)
+    sparse.py                           — SparseRetriever, real BM25 (T-M3.9)
+    fusion.py                            — RRFFusion + WeightedFusion (T-M3.10)
+  evaluation/
+    metrics.py                           — hand-written Recall@K / MRR (T-M2.8)
 migrations/
   0001_create_documents_table.sql
+  0002_create_chunks_table.sql
 corpus/
   MANIFEST.md          — every source, its licence status, and fetch outcome
   synthetic/            — 28 fictional documents (see Corpus below)
   public/                — 16 real retailer policy pages (see Corpus below)
+evals/
+  golden_set/            — 50-question golden set + loader/resolver (see EVALUATION.md)
+  results/                — dated, diffable Recall@K/MRR results per milestone
+  run_m3_experiment.py     — the real T-M3.12 experiment (4 configs x 50 questions)
 tests/
   conftest.py            — shared fixtures (TestClient, real-Postgres pool + cleanup)
   test_*.py

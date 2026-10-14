@@ -677,6 +677,48 @@ rather than re-asserting the original call by default.
 
 ---
 
+## D-019 · Commit incrementally through a milestone, not in one batch at the end
+
+**We're doing:** creating a milestone's feature branch at the *start* of
+the milestone's work, committing after each significant change as it
+happens — one task's worth of code, roughly — rather than accumulating
+the whole milestone's diff uncommitted and splitting it into commits only
+when the milestone's `[GIT]` task comes up at the end.
+
+**Why:** §11b of BLUEPRINT.md already said "commit as you go, one logical
+change per commit," but in practice the actual git commits were only
+happening when the milestone's final `branch → PR → merge` task ran —
+meaning a week or more of real work sat uncommitted on `main` the whole
+time, and the git history showed one burst of activity per milestone
+instead of what was actually happening day to day. That undercuts the
+exact thing §11b argues for: "the git history is part of what's being
+assessed" and "a repo with one commit saying 'initial commit' undercuts
+the story regardless of code quality" — a history with 6 commits, one per
+milestone, has the same problem in miniature. Committing incrementally
+makes the git log (and the GitHub contribution graph) reflect the actual
+pace of work, and keeps each commit small enough to actually read, which
+is the same value PR review already gets credit for in §11b.
+
+**What changes operationally:** the milestone's branch is created as part
+of that milestone's *first* implementation task, not reserved for a
+dedicated end-of-milestone step. The final `[GIT]` task (e.g. T-M3.14)
+still exists, but now its job is just push → open PR → self-review →
+merge — the branch already carries a real commit history by the time
+that task runs, it isn't created from scratch there.
+
+**Branches are still never deleted after merge** (D-018 stands) — this
+decision only changes *when* commits happen within a branch's life, not
+what happens to the branch afterward.
+
+**Caught by:** direct feedback mid-M3 — the actual commit history showed
+nothing for M3.5 through M3.11's real work (new Milvus infra, the Gemini
+adapter, both retrievers, both fusion strategies, the `/retrieve`
+endpoint, several real bugs found and fixed) sitting uncommitted on
+`main` while the work was already done and verified, which is exactly
+what this decision exists to prevent going forward.
+
+---
+
 ## Open questions
 
 Things deliberately not decided yet, with the milestone that will settle them.
