@@ -220,6 +220,8 @@ __marimo__/
 # Embedding cache (T-M2.6) -- regenerable, large, and real API keys may
 # touch it indirectly via embed_fn; never commit it.
 .embedding_cache/
+# Blueprint artifact's regenerable build output -- see docs/BLUEPRINT_ARTIFACT.md.
+scripts/blueprint_artifact.out.html
 
 # T-M3.12: raw per-question experiment output -- regenerable by re-running
 # evals/run_m3_experiment.py; evals/results/M3_retrieval.md is the committed

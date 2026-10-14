@@ -606,9 +606,9 @@ Every experiment gets a row. Fill in results as you go; this table becomes your 
 
 | ID | Experiment | Milestone | Hypothesis | Result |
 |---|---|---|---|---|
-| A | Fixed-size vs. semantic vs. structure-aware chunking | M3 | Structure-aware wins on this corpus because policies have real heading structure | _pending_ |
-| B | Dense vs. BM25 vs. hybrid | M3 | Hybrid wins overall; BM25 dominates the exact-identifier subset | _pending_ |
-| C | RRF vs. weighted fusion | M3 | RRF within noise of tuned weighted, without the normalization fragility | _pending_ |
+| A | Fixed-size vs. semantic vs. structure-aware chunking | M3 | Structure-aware wins on this corpus because policies have real heading structure | **Confirmed.** Structure-aware Recall@5 = 0.913 vs. fixed-size (150-tok) 0.565, under the winning retrieval config (hybrid+RRF). See [`evals/results/M3_retrieval.md`](./evals/results/M3_retrieval.md). |
+| B | Dense vs. BM25 vs. hybrid | M3 | Hybrid wins overall; BM25 dominates the exact-identifier subset | **Partly wrong, instructively.** Hybrid+RRF does win overall (MRR 0.931 vs. dense's 0.917, BM25's 0.740). But BM25 did **not** dominate exact-identifier — it was the *worst* config there (0.125 Recall@1, 0.333 MRR): those questions are natural-language, not bare keyword search, and generic words dilute BM25's exact-match edge. See [`evals/results/M3_retrieval.md`](./evals/results/M3_retrieval.md). |
+| C | RRF vs. weighted fusion | M3 | RRF within noise of tuned weighted, without the normalization fragility | **Confirmed, and RRF edges ahead.** RRF: Recall@1 0.702, MRR 0.931. Weighted (α=0.6 dense/0.4 bm25): Recall@1 0.667, MRR 0.899. Close, but RRF wins on both and needs no tuned weight — the simplicity-without-cost case holds. |
 | D | With vs. without reranker | M4 | Large precision gain, meaningful latency cost | _pending_ |
 | E | Template vs. LLM-generated contextual prefix | M4 | LLM prefixes help, but not enough to justify the cost | _pending_ |
 | F | Naive vs. deduped/token-budgeted context | M4 | Fewer, better chunks beat more chunks | _pending_ |
