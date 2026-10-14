@@ -26,7 +26,7 @@ import os
 
 OUT = os.path.join(os.path.dirname(__file__), "blueprint_artifact.out.html")
 
-TODAY = datetime.date(2026, 10, 12)
+TODAY = datetime.date(2026, 10, 13)
 START = datetime.date(2026, 8, 18)
 END = datetime.date(2026, 11, 12)
 SPAN = (END - START).days + 1
@@ -450,11 +450,11 @@ M2_TASKS = [
 ]
 
 M3_EXPERIMENT_TABLE = """<div class="table-wrap"><table><thead><tr><th>Config</th><th>Recall@1</th><th>Recall@5</th><th>Recall@10</th><th>MRR</th></tr></thead><tbody>
-<tr><td>Dense only</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
-<tr><td>BM25 only</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
-<tr><td>Hybrid + RRF</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
-<tr><td>Hybrid + weighted</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
-</tbody></table></div><p class="flow-caption">Not yet measured — this is the actual table T-M3.12 will fill in, pulled directly from TASKS.md.</p>"""
+<tr><td>Dense only</td><td>0.679</td><td>0.937</td><td>0.956</td><td>0.917</td></tr>
+<tr><td>BM25 only</td><td>0.492</td><td>0.821</td><td>0.929</td><td>0.740</td></tr>
+<tr><td>Hybrid + RRF</td><td><b>0.702</b></td><td>0.913</td><td><b>0.964</b></td><td><b>0.931</b></td></tr>
+<tr><td>Hybrid + weighted</td><td>0.667</td><td>0.925</td><td><b>0.964</b></td><td>0.899</td></tr>
+</tbody></table></div><p class="flow-caption">Real run, n=42 answerable questions (8 unanswerable excluded — recall_at_k/reciprocal_rank return None, not 0). Hybrid+RRF wins overall. Surprising result: BM25 was predicted to dominate exact-identifier questions — it was actually the <i>worst</i> config there (0.125 Recall@1), because a natural-language question about an identifier dilutes BM25's exact-match advantage. Full breakdown: evals/results/M3_retrieval.md.</p>"""
 
 M3_TASKS = [
     T("T-M3.1","LEARN","BM25 mechanics, worked example on 3 toy documents",
@@ -515,18 +515,19 @@ M3_TASKS = [
     T("T-M3.12","MEASURE","Four configs × 50 questions — Experiments A, B, C",
       "Run the 50-question exam through all four search configs and record the scores.",
       "Actually run the 50-question exam through all four search setups and record which one scores best.",
-      "Dense only / BM25 only / Hybrid+RRF / Hybrid+weighted, each scored on Recall@1/5/10 and MRR using T-M2.8's metrics. Broken down by question category, plus D-013's one-cell chunking cross-check.",
-      False, None, M3_EXPERIMENT_TABLE),
+      "Dense only / BM25 only / Hybrid+RRF / Hybrid+weighted, each scored on Recall@1/5/10 and MRR using T-M2.8's metrics, against real Postgres/Milvus/Gemini. Broken down by question category (the real surprise: BM25 was predicted to dominate exact-identifier, but was the worst config there). D-013's chunking cross-check (Experiment A) confirmed structure-aware decisively: Recall@5 0.913 vs. fixed-size 0.565, under the winning hybrid_rrf config.",
+      True, [("964463c","feat(T-M3.12/T-M3.13): real 4-config x 50-question experiment + chunking cross-check")], M3_EXPERIMENT_TABLE),
     T("T-M3.13","DOCS","Commit evals/results/M3_retrieval.md",
       "Save the real experiment scores as a dated, committed file.",
       "Save the real scores from the experiment as a dated file in the repo, so progress over time is visible and provable.",
-      "A dated, diffable record of the numbers at this point in the build.",
-      False),
+      "A dated, diffable record of the numbers at this point in the build — evals/results/M3_retrieval.md, overall + per-category tables, the surprising result, and the chunking cross-check.",
+      True, [("964463c","feat(T-M3.12/T-M3.13): real 4-config x 50-question experiment + chunking cross-check")]),
     T("T-M3.14","GIT","PR → merge feat/m3-hybrid-retrieval",
       "Open the PR and merge — the branch already has its real incremental commits.",
       "Open the pull request and merge M3's work — the branch and its commits already exist from T-M3.5 onward, per the new incremental-commit policy (D-019).",
-      "Push (if needed) → open PR → self-review → merge. Branch kept after merge (D-018). README quick-start updated for the Milvus/etcd/MinIO requirement.",
-      False),
+      "Pushed → PR #6 opened → CI green (real Milvus + Gemini) → merged. Branch kept after merge (D-018). README quick-start updated for the Milvus/etcd/MinIO requirement, new modules, and the GEMINI_API_KEY note.",
+      True, [("27db4f7","docs(T-M3.14): update README for M3 -- Milvus quick-start, new modules"),
+             ("3c1ae33","Merge pull request #6 from visheshkapoor05/feat/m3-hybrid-retrieval")]),
 ]
 
 M4_TASKS = [
@@ -1257,6 +1258,9 @@ TOTAL_TASKS = sum(sum(len(t[1]) for t in m["sections"]) for m in MILESTONES)
 PCT = round(TOTAL_DONE / TOTAL_TASKS * 100)
 
 COMMITS = [
+    ("3c1ae33", "Merge pull request #6 from visheshkapoor05/feat/m3-hybrid-retrieval"),
+    ("27db4f7", "docs(T-M3.14): update README for M3 -- Milvus quick-start, new modules"),
+    ("964463c", "feat(T-M3.12/T-M3.13): real 4-config x 50-question experiment + chunking cross-check"),
     ("92636bb", "docs(D-019): commit incrementally through a milestone, not in one batch"),
     ("b24b109", "feat(T-M3.11): POST /retrieve, with per-stage timings"),
     ("56586cf", "feat(T-M3.10): RRFFusion and WeightedFusion behind one interface"),
