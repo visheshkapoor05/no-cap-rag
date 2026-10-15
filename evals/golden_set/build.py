@@ -1,5 +1,6 @@
 """
-Builds evals/golden_set/golden_set.yaml: 50 hand-authored questions. Every
+Builds evals/golden_set/golden_set.yaml: 150 hand-authored questions
+(T-M4.13 expanded the original 50 to the PRD's 150-200 target). Every
 relevant chunk is specified as a natural-key reference --
 (title, version, section_path-or-text-substring) -- validated against the
 REAL chunks table in Postgres at build time (a typo raises immediately,
@@ -35,12 +36,21 @@ from app.core.db import get_pool  # noqa: E402
 OUT_PATH = Path(__file__).resolve().parent / "golden_set.yaml"
 
 EXPECTED_COUNTS = {
-    "factual_lookup": 15,
-    "exact_identifier": 8,
-    "multi_hop": 10,
-    "unanswerable": 8,
-    "ambiguous": 5,
-    "version_sensitive": 4,
+    "factual_lookup": 52,
+    "exact_identifier": 25,
+    "multi_hop": 28,
+    "unanswerable": 24,
+    "ambiguous": 15,
+    # T-M4.13: NOT scaled proportionally like the other categories, on
+    # purpose. The corpus has exactly two genuinely versioned document
+    # pairs (Loyalty Program Rules v1.0/v2.0, Returns Policy v2.0/v3.0) --
+    # every real version-to-version difference in the whole corpus was
+    # enumerated by hand, and there are 7, not the ~12 a flat 3x scale-up
+    # of the original 4 would suggest. Inventing a fake version difference
+    # to hit a round number would violate the one rule this whole golden
+    # set exists to enforce: every answer traces to real corpus text,
+    # never fabricated to fill a quota.
+    "version_sensitive": 7,
 }
 
 
@@ -200,6 +210,192 @@ def build(pool) -> dict:
         True, "easy", ["loyalty"],
         ("Points Expiry Policy", "1.0", "3. Account Inactivity"))
 
+    # ---------------------------------------------------------- factual lookup, continued (T-M4.13, +32)
+    add("factual_lookup", "What is the minimum and maximum denomination for a gift card?",
+        "$10 to $500.",
+        True, "easy", ["gift_cards"],
+        ("Gift Card Terms", "1.0", "1. Issuance"))
+
+    add("factual_lookup", "What's required to get a replacement for a lost physical gift card?",
+        "The original purchase receipt or activation record -- without proof of the original balance, no replacement or transfer is possible.",
+        True, "easy", ["gift_cards"],
+        ("Gift Card Terms", "1.0", "4. Loss, Theft, and Fraud"))
+
+    add("factual_lookup", "At how many days on the sales floor does an item first get marked down, and by how much?",
+        "45 days, marked down 20%.",
+        True, "easy", ["promotions"],
+        ("Markdown Policy", None, None, "20% at 45 days"))
+
+    add("factual_lookup", "At what markdown percentage is an item physically re-tagged as clearance?",
+        "40% or deeper.",
+        True, "easy", ["promotions"],
+        ("Markdown Policy", None, None, "clearance\" in addition"))
+
+    add("factual_lookup", "Who must approve reversing a markdown that was applied due to a pricing error?",
+        "Regional merchandising approval -- it cannot be done at store level.",
+        True, "medium", ["promotions"],
+        ("Markdown Policy", None, None, "Markdown Reversal"))
+
+    add("factual_lookup", "What markdown percentage is applied to seasonal inventory at season transition?",
+        "30%, two weeks before a further 50% markdown and eventual full clearance liquidation up to 70%.",
+        True, "easy", ["promotions"],
+        ("Markdown Policy", None, None, "End-of-Season Markdown"))
+
+    add("factual_lookup", "Under the Summer BOGO campaign, what discount applies to the lower-priced qualifying item?",
+        "50% off.",
+        True, "easy", ["promotions"],
+        ("Campaign Brief — BOGO", None, None, "discounted 50%"))
+
+    add("factual_lookup", "By how much can the Summer BOGO campaign's actual margin impact exceed its modeled ceiling before early termination is considered?",
+        "More than 15% in any 3-day window, with 48 hours' notice to stores before the promotion is pulled.",
+        True, "medium", ["promotions"],
+        ("Campaign Brief — BOGO", None, None, "15% in any 3-day window"))
+
+    add("factual_lookup", "What is the employee discount purchase cap?",
+        "$2,000 per rolling 30-day period -- purchases beyond the cap are still permitted but don't receive the discount on the excess.",
+        True, "easy", ["staff"],
+        ("Employee Discount Policy", "1.0", "4. Purchase Limits"))
+
+    add("factual_lookup", "What does an extended warranty add-on cost?",
+        "8% of the item's purchase price, and it must be purchased at the time of sale, not added retroactively.",
+        True, "easy", ["warranty"],
+        ("Warranty Policy", "1.0", None, "8% of the item"))
+
+    add("factual_lookup", "Above what repair-cost percentage is a warranty claim resolved via replacement instead of repair?",
+        "When repair cost would exceed 60% of the item's original purchase price, or when parts are discontinued.",
+        True, "medium", ["warranty"],
+        ("Warranty Policy", "1.0", None, "60% of the item"))
+
+    add("factual_lookup", "How long is the structural-frame warranty on furniture?",
+        "5 years (upholstery/fabric coverage is 1 year).",
+        True, "easy", ["warranty"],
+        ("Warranty Policy", "1.0", None, "Structural frame"))
+
+    add("factual_lookup", "How long is the parts warranty on major appliances?",
+        "2 years for parts; labor is covered for 1 year.",
+        True, "easy", ["warranty"],
+        ("Warranty Policy", "1.0", None, "Major Appliances"))
+
+    add("factual_lookup", "Within how many days must a new owner register a warranty transfer after taking possession of a gifted or resold item?",
+        "30 days, providing the original receipt and the original purchaser's written consent.",
+        True, "medium", ["warranty"],
+        ("Warranty Policy", "1.0", None, "Warranty Transfer"))
+
+    add("factual_lookup", "What is the typical delivery window for Expedited shipping?",
+        "2-3 business days, guaranteed or the shipping charge is refunded.",
+        True, "easy", ["shipping"],
+        ("Shipping Policy", None, None, "Expedited | 2"))
+
+    add("factual_lookup", "What is the typical delivery window for a freight (large item) shipment?",
+        "7-14 business days, not guaranteed.",
+        True, "easy", ["shipping"],
+        ("Shipping Policy", None, None, "Freight (large item)"))
+
+    add("factual_lookup", "Up until what point in order fulfillment can a shipping address be changed at no cost?",
+        "Until the order enters \"picking\" status, typically within 2 hours of order placement.",
+        True, "medium", ["shipping"],
+        ("Shipping Policy", None, None, "without cost up until"))
+
+    add("factual_lookup", "After how many price-match requests within a rolling 30-day period is a customer flagged for manual review?",
+        "More than 5.",
+        True, "medium", ["price_match"],
+        ("Price Match Policy", "1.0", "4. Repeated or Suspicious Requests"))
+
+    add("factual_lookup", "Within how many days after purchase can a customer submit a post-purchase online price-match request?",
+        "14 days.",
+        True, "easy", ["price_match"],
+        ("Price Match Policy", "1.0", "3. Process"))
+
+    add("factual_lookup", "At what variance percentage does a stock-take zone require a recount before the count is finalized?",
+        "A variance of 2-5% requires a recount of that zone alone.",
+        True, "medium", ["inventory"],
+        ("Stock Take SOP", None, None, "2–5% requires"))
+
+    add("factual_lookup", "Within how many hours of count completion must stock-take sheets be submitted to regional inventory control?",
+        "48 hours.",
+        True, "easy", ["inventory"],
+        ("Stock Take SOP", None, None, "48 hours of count completion"))
+
+    add("factual_lookup", "Above what dollar amount does an opening till-count discrepancy get logged and reported to the shift lead immediately?",
+        "Over $2.",
+        True, "easy", ["cash_handling"],
+        ("Cash Handling SOP", "1.0", "2. Opening Count"))
+
+    add("factual_lookup", "What closing till discrepancy amount requires same-shift shift-lead review?",
+        "$5-$25 -- under $5 is logged with no escalation, over $25 requires a full transaction-log review before the associate leaves.",
+        True, "medium", ["cash_handling"],
+        ("Cash Handling SOP", "1.0", "5. Closing Count and Discrepancy Reporting"))
+
+    add("factual_lookup", "What paid and unpaid breaks are included in a shift of 5 hours or more?",
+        "One paid 15-minute break and one unpaid 30-minute meal break.",
+        True, "easy", ["staff"],
+        ("Shift Policy", "1.0", "2. Breaks"))
+
+    add("factual_lookup", "How many days in advance are employee schedules posted?",
+        "14 days.",
+        True, "easy", ["staff"],
+        ("Shift Policy", "1.0", "1. Scheduling"))
+
+    add("factual_lookup", "How many unexcused no-shows within a rolling 90-day period trigger a formal attendance review?",
+        "Two.",
+        True, "easy", ["staff"],
+        ("Shift Policy", "1.0", "5. Attendance and No-Shows"))
+
+    add("factual_lookup", "Below what order value may a shift lead authorize an immediate replacement without waiting for a carrier trace to complete?",
+        "Under $30.",
+        True, "medium", ["shipping"],
+        ("Delivery Dispute Runbook", None, None, "under $30"))
+
+    add("factual_lookup", "How many delivery disputes within a rolling 6-month period flags an account for manual review?",
+        "3 or more.",
+        True, "medium", ["shipping"],
+        ("Delivery Dispute Runbook", None, None, "3 or more delivery disputes"))
+
+    add("factual_lookup", "Within how many business days of a chargeback notice must evidence be gathered?",
+        "5 business days.",
+        True, "medium", ["chargebacks"],
+        ("Chargeback Handling Runbook", None, None, "Within 5 business days"))
+
+    add("factual_lookup", "What is the typical deadline to respond to a chargeback before it's automatically decided in the customer's favor?",
+        "10-14 business days, per the card issuer's deadline.",
+        True, "medium", ["chargebacks"],
+        ("Chargeback Handling Runbook", None, None, "10–14 business days"))
+
+    add("factual_lookup", "What is the annual spend threshold for PLATINUM_TIER under the current loyalty program rules?",
+        "$5,000.",
+        True, "easy", ["loyalty"],
+        ("Loyalty Program Rules", "2.0", "1. Tier Structure"))
+
+    add("factual_lookup", "What was the card transaction failure rate during the Payment Gateway Failure incident?",
+        "Approximately 35% of attempts, for 22 minutes store-wide.",
+        True, "medium", ["incidents"],
+        ("Payment Gateway Failure Postmortem", None, None, "35% of attempts"))
+
+    add("factual_lookup", "Approximately how long did the POS Outage incident last?",
+        "Approximately 47 minutes.",
+        True, "medium", ["incidents"],
+        ("POS Outage Postmortem", None, None, "47 minutes"))
+
+    add("factual_lookup", "Approximately how many SKUs had incorrect online-availability counts during the Inventory Sync Failure incident?",
+        "Approximately 4,100 SKUs across all stores, for a three-day window.",
+        True, "medium", ["incidents"],
+        ("Inventory Sync Failure Postmortem", None, None, "4,100 SKUs"))
+
+    add("factual_lookup", "Approximately how many transactions were affected by the Loyalty Points Double-Credit incident?",
+        "Approximately 1,900 transactions of the day's roughly 40,000, at a total write-off cost of about $4,200.",
+        True, "medium", ["incidents", "loyalty"],
+        ("Loyalty Double-Credit Postmortem", None, None, "roughly 1,900"))
+
+    add("factual_lookup", "Does warranty coverage begin on the purchase date or the delivery date for a shipped order?",
+        "The purchase date, as shown on the original receipt or order confirmation -- not the delivery date.",
+        True, "medium", ["warranty"],
+        ("Warranty Policy", "1.0", None, "begins on the date of purchase"))
+
+    add("factual_lookup", "What is the restocking fee that may apply to an opened electronics return accepted outside the standard window?",
+        "Up to 15%, applied at associate discretion.",
+        True, "medium", ["returns"],
+        ("Returns Policy", "2.0", "3. Exceptions > 3.1 Electronics"))
+
     # ---------------------------------------------------------- exact identifier (8)
     add("exact_identifier", "What does incident code POS-ERR-3021 refer to?",
         "The POS Outage Postmortem -- a ~47-minute network-layer outage affecting register connectivity at 14 stores on 2026-03-18.",
@@ -240,6 +436,92 @@ def build(pool) -> dict:
         "The Cash Handling SOP -- governs till assignment, opening/closing counts, mid-shift drops, and safe access procedures.",
         True, "medium", ["identifier", "cash_handling"],
         ("Cash Handling SOP", "1.0", None, "SOP ID:** SOP-CASH-009"))
+
+    # ---------------------------------------------------------- exact identifier, continued (T-M4.13, +17)
+    add("exact_identifier", "What is runbook RUN-CHG-003 used for?",
+        "The Chargeback Handling Runbook -- used when a card issuer notifies the store of a customer-initiated chargeback.",
+        True, "medium", ["identifier", "chargebacks"],
+        ("Chargeback Handling Runbook", None, None, "Runbook ID: RUN-CHG-003"))
+
+    add("exact_identifier", "What is runbook RUN-DEL-002 used for?",
+        "The Delivery Dispute Runbook -- used when a customer reports an online order as not received despite carrier tracking showing delivery.",
+        True, "medium", ["identifier", "shipping"],
+        ("Delivery Dispute Runbook", None, None, "Runbook ID: RUN-DEL-002"))
+
+    add("exact_identifier", "What is policy GC-POL-001?",
+        "The Gift Card Terms -- issuance, balance/expiry, redemption, loss/theft/fraud, and returns involving gift cards.",
+        True, "medium", ["identifier", "gift_cards"],
+        ("Gift Card Terms", "1.0", None, "Policy ID:** GC-POL-001"))
+
+    add("exact_identifier", "What is policy STAFF-POL-001?",
+        "The Shift Policy -- scheduling, breaks, overtime, minimum rest between shifts, and attendance.",
+        True, "medium", ["identifier", "staff"],
+        ("Shift Policy", "1.0", None, "Policy ID:** STAFF-POL-001"))
+
+    add("exact_identifier", "What is policy STAFF-POL-002?",
+        "The Employee Discount Policy -- the 20% standard staff discount and its interactions with loyalty points, markdowns, and purchase limits.",
+        True, "medium", ["identifier", "staff"],
+        ("Employee Discount Policy", "1.0", None, "Policy ID:** STAFF-POL-002"))
+
+    add("exact_identifier", "What is policy STAFF-POL-003?",
+        "The Leave Policy -- PTO, sick leave, bereavement leave, and unpaid personal leave.",
+        True, "medium", ["identifier", "staff"],
+        ("Leave Policy", "1.0", None, "Policy ID:** STAFF-POL-003"))
+
+    add("exact_identifier", "What is policy LOY-POL-001?",
+        "The Loyalty Program Rules -- tier structure, points accrual, redemption, points handling on returns, and points expiry (headline rule).",
+        True, "medium", ["identifier", "loyalty"],
+        ("Loyalty Program Rules", "2.0", None, "Policy ID:** LOY-POL-001 · **Version:** 2.0"))
+
+    add("exact_identifier", "What is policy LOY-POL-002?",
+        "The Points Expiry Policy -- the detailed reference for point expiry mechanics, including account inactivity and store-closure reinstatement.",
+        True, "medium", ["identifier", "loyalty"],
+        ("Points Expiry Policy", "1.0", None, "Policy ID:** LOY-POL-002"))
+
+    add("exact_identifier", "What is policy PM-POL-001?",
+        "The Price Match Policy -- eligibility, process, repeated-request flagging, and refund of the difference.",
+        True, "medium", ["identifier", "price_match"],
+        ("Price Match Policy", "1.0", None, "Policy ID:** PM-POL-001"))
+
+    add("exact_identifier", "What is policy PROMO-POL-001?",
+        "The Summer BOGO Campaign Brief -- the \"buy one, get one 50% off\" promotion's mechanics, eligible categories, and return handling.",
+        True, "medium", ["identifier", "promotions"],
+        ("Campaign Brief — BOGO", None, None, "Policy ID: PROMO-POL-001"))
+
+    add("exact_identifier", "What is policy PROMO-POL-003?",
+        "The Markdown Policy -- the markdown cadence, clearance tagging, markdown reversal, and seasonal markdown schedule.",
+        True, "medium", ["identifier", "promotions"],
+        ("Markdown Policy", None, None, "Policy ID: PROMO-POL-003"))
+
+    add("exact_identifier", "What is SOP-OPEN-002?",
+        "The Opening/Closing Checklist -- pre-opening, during-business-hours, pre-closing, and post-closing procedures.",
+        True, "medium", ["identifier"],
+        ("Opening/Closing Checklist", "1.0", None, "SOP ID:** SOP-OPEN-002"))
+
+    add("exact_identifier", "What is SOP-STOCK-005?",
+        "The Stock Take SOP -- the quarterly periodic full-store inventory count procedure.",
+        True, "medium", ["identifier", "inventory"],
+        ("Stock Take SOP", None, None, "SOP ID: SOP-STOCK-005"))
+
+    add("exact_identifier", "What is policy SHIP-POL-001?",
+        "The Shipping Policy -- delivery windows, carriers, address changes, shipping-charge refunds, and international shipping.",
+        True, "medium", ["identifier", "shipping"],
+        ("Shipping Policy", None, None, "Policy ID: SHIP-POL-001"))
+
+    add("exact_identifier", "What is policy WAR-POL-001?",
+        "The Warranty Policy -- coverage by category, filing a claim, extended warranty, transfer, and international/online-only purchases.",
+        True, "medium", ["identifier", "warranty"],
+        ("Warranty Policy", "1.0", None, "Policy ID: WAR-POL-001"))
+
+    add("exact_identifier", "What architecture decision does ADR-001 record?",
+        "The Order Management System choice -- adopting a commercial OMS platform with a dedicated integration layer, rather than building in-house or extending the POS vendor's order module.",
+        True, "hard", ["identifier", "architecture"],
+        ("OMS Choice ADR", None, None, "ADR ID: ADR-001"))
+
+    add("exact_identifier", "What architecture decision does ADR-002 record?",
+        "The Loyalty Platform choice -- building the points ledger in-house on the existing transactional database, rather than adopting a commercial platform or extending the OMS event log.",
+        True, "hard", ["identifier", "architecture", "loyalty"],
+        ("Loyalty Platform Choice ADR", None, None, "ADR ID ADR-002"))
 
     # ---------------------------------------------------------- multi-hop (10)
     add("multi_hop",
@@ -312,6 +594,133 @@ def build(pool) -> dict:
         ("Points Expiry Policy", "1.0", "5. Account Transfers and Closures"),
         ("Points Expiry Policy", "1.0", "6. Corporate and Bulk Accounts"))
 
+    # ---------------------------------------------------------- multi-hop, continued (T-M4.13, +18)
+    add("multi_hop",
+        "Under the Summer BOGO campaign, is a loyalty-tier discount applied before or after the BOGO 50% discount?",
+        "The loyalty-tier percentage is applied first, then the BOGO 50% discount is calculated on the resulting post-loyalty price of the lower-priced qualifying item -- this follows the standard stacking order defined in the Discount Stacking Rules.",
+        True, "hard", ["multi_hop", "promotions", "loyalty"],
+        ("Campaign Brief — BOGO", None, None, "Stacking with Loyalty Discounts"),
+        ("Discount Stacking Rules", "1.0", "2. Stacking Order"))
+
+    add("multi_hop",
+        "Does a clearance-tagged item that falls within the 14-day discounted-item return window qualify for a same-item size exchange?",
+        "Yes -- this exception was added in Returns Exception Matrix v2.0 specifically for items tagged clearance under the Markdown Policy that fall within Returns Policy Section 3.2's shortened window.",
+        True, "hard", ["multi_hop", "returns", "promotions"],
+        ("Markdown Policy", None, None, "Clearance Tagging"),
+        ("Returns Exception Matrix", "2.0", "3. New in This Version: Clearance-Tagged Item Exception"))
+
+    add("multi_hop",
+        "An employee buys a clearance-tagged item using their staff discount. Does the discount apply on top of the clearance price, and is the combination subject to the customer-facing 50% combined-discount cap?",
+        "Yes, the employee discount stacks with the already-marked-down clearance price, and no, it is not subject to the Discount Stacking Rules' 50% cap -- the employee discount is a staff benefit, not a customer promotion, and the two policies deliberately don't cross-apply.",
+        True, "hard", ["multi_hop", "staff", "promotions"],
+        ("Markdown Policy", None, None, "Employee Discount Interaction"),
+        ("Employee Discount Policy", "1.0", "3. Interaction with Markdown/Clearance Pricing"))
+
+    add("multi_hop",
+        "A stock-take zone shows a variance over 5%. What does the store manager need to review, and why?",
+        "The zone's recent transaction log for the same window covered by the Cash Handling SOP's discrepancy thresholds -- a large inventory variance and a cash variance in the same period often share a root cause, most commonly a miscoded return or an unlogged damage write-off.",
+        True, "hard", ["multi_hop", "inventory", "cash_handling"],
+        ("Stock Take SOP", None, None, "over 5% requires"),
+        ("Cash Handling SOP", "1.0", "5. Closing Count and Discrepancy Reporting"))
+
+    add("multi_hop",
+        "A customer purchased an item online and shipped to an address outside the country of sale. If they need a warranty service return, who pays the return shipping cost?",
+        "The customer -- unlike domestic warranty service where the store covers return shipping for an approved claim, an international online purchase returned for warranty service is the customer's shipping responsibility.",
+        True, "hard", ["multi_hop", "warranty", "shipping"],
+        ("Warranty Policy", "1.0", None, "International and Online-Only"),
+        ("Shipping Policy", None, None, "International orders are subject"))
+
+    add("multi_hop",
+        "Can a non-keyholder employee cover an opening shift through a shift-swap request?",
+        "No -- shift swaps require both employees to be qualified for the role, and only keyholders may cover opening/closing shifts, per the Opening/Closing Checklist's individual-code requirement.",
+        True, "hard", ["multi_hop", "staff"],
+        ("Shift Policy", "1.0", "1. Scheduling"),
+        ("Opening/Closing Checklist", "1.0", "1. Pre-Opening (before doors unlock)"))
+
+    add("multi_hop",
+        "An employee goes on unpaid personal leave for 70 days. What happens to their personal loyalty account?",
+        "It is treated as any other inactive account under the standard 24-month inactivity rule -- employment status does not exempt an account, and extended leave alone does not reset that clock.",
+        True, "hard", ["multi_hop", "staff", "loyalty"],
+        ("Leave Policy", "1.0", "7. Leave and Loyalty Program Interaction"),
+        ("Points Expiry Policy", "1.0", "3. Account Inactivity"))
+
+    add("multi_hop",
+        "Why wasn't the loyalty points ledger folded into the Order Management System's own event log instead of staying a separate system?",
+        "It was rejected specifically because keeping loyalty state as a single source of truth queried by the OMS, rather than replicated into it, avoids the class of consistency bug that caused the loyalty double-credit incident -- extending the OMS event log to carry loyalty state directly would have reintroduced that exact risk.",
+        True, "hard", ["multi_hop", "architecture", "loyalty"],
+        ("Loyalty Platform Choice ADR", None, None, "Second, against extending the OMS event log"),
+        ("OMS Choice ADR", None, None, "loyalty point balances remain authoritative"))
+
+    add("multi_hop",
+        "What do the Inventory Sync Failure and Payment Gateway Failure incidents have in common in terms of root-cause pattern?",
+        "Both trace back to an external system change made without advance notice to the team depending on that system's stable interface -- a POS export schema change in one case, an uncommunicated TLS certificate rotation in the other.",
+        True, "hard", ["multi_hop", "incidents"],
+        ("Inventory Sync Failure Postmortem", None, None, "similar in spirit to the certificate rotation"),
+        ("Payment Gateway Failure Postmortem", None, None, "not communicated to the integration team"))
+
+    add("multi_hop",
+        "A customer wants a second price match on the same item after an even lower price appeared following their first match. What's their recourse?",
+        "A second match on the same item is not permitted -- their recourse is the standard return window under the Returns Policy, followed by a new purchase at the lower price if it's still available.",
+        True, "hard", ["multi_hop", "price_match", "returns"],
+        ("Price Match Policy", "1.0", "6. One Match Per Item"),
+        ("Returns Policy", "3.0", "1. Standard Return Window"))
+
+    add("multi_hop",
+        "A chargeback is filed for a transaction where a refund had already been issued through the Failed Refund Runbook's recovery process. Is this a strong or weak case for the store to dispute?",
+        "A strong case -- a chargeback filed after a refund was already processed, whether through normal Returns Policy channels or the Failed Refund Runbook's recovery path, means the customer has effectively attempted to be refunded twice.",
+        True, "hard", ["multi_hop", "chargebacks", "refunds"],
+        ("Chargeback Handling Runbook", None, None, "Refund already issued via RET-POL-001"),
+        ("Failed Refund Runbook", "1.0", None, "Use this runbook when a refund has been approved"))
+
+    add("multi_hop",
+        "Why don't gift card balances expire the way loyalty points do?",
+        "Because the two are legally and operationally distinct instruments -- a gift card represents pre-paid store credit, while loyalty points represent an earned, non-purchased reward that's designed to expire on a rolling basis.",
+        True, "medium", ["multi_hop", "gift_cards", "loyalty"],
+        ("Gift Card Terms", "1.0", "2. Balance and Expiry"),
+        ("Points Expiry Policy", "1.0", "1. Standard Expiry"))
+
+    add("multi_hop",
+        "If an employee returns an item they bought using their staff discount, is the refund calculated on the discounted price or the original tag price?",
+        "The discounted price actually paid, not the original tag price -- consistent with how any promotional-price return is handled, though the return window itself still follows the standard Returns Policy windows.",
+        True, "hard", ["multi_hop", "staff", "returns"],
+        ("Employee Discount Policy", "1.0", "5. Returns on Employee-Discounted Purchases"),
+        ("Returns Policy", "3.0", "1. Standard Return Window"))
+
+    add("multi_hop",
+        "Can a customer apply a coupon code to a clearance-tagged item?",
+        "No -- clearance-tagged items can accept a loyalty-tier percentage but not a coupon code; if one is entered, it's silently ignored for that line item rather than rejecting the whole order.",
+        True, "hard", ["multi_hop", "promotions"],
+        ("Discount Stacking Rules", "1.0", "4. Exclusions from Stacking"),
+        ("Markdown Policy", None, None, "Clearance Tagging"))
+
+    add("multi_hop",
+        "An online order's shipping address is changed after the order has already entered picking status. How is the original charge handled?",
+        "The order must be canceled and re-placed -- the original charge is refunded per standard Returns Policy processing times, once the original shipment is confirmed returned to the fulfillment center by the carrier.",
+        True, "hard", ["multi_hop", "shipping", "returns"],
+        ("Shipping Policy", None, None, "After picking has begun"),
+        ("Returns Policy", "3.0", "4. Refund Method"))
+
+    add("multi_hop",
+        "A package's tracking shows delivery to an address that doesn't match the order. Is this processed as a return under the Returns Policy?",
+        "No -- this is treated as carrier error, not a return. A replacement ships immediately at no cost and the original charge is left untouched, since no return of goods is possible or expected from the customer in this scenario.",
+        True, "hard", ["multi_hop", "shipping", "returns"],
+        ("Delivery Dispute Runbook", None, None, "Misdelivered Package Cases"),
+        ("Returns Policy", "3.0", "2. Non-Returnable Items"))
+
+    add("multi_hop",
+        "A points-expiry-eligible customer's points were set to expire during the POS Outage window and they couldn't redeem them in time. What can they do?",
+        "Contact support within 30 days of the outage -- the affected points are eligible for reinstatement with a fresh 90-day expiry window, since this incident is the specific case the Points Expiry Policy's store-closure/outage provision was written to cover.",
+        True, "hard", ["multi_hop", "incidents", "loyalty"],
+        ("POS Outage Postmortem", None, None, "Interaction with Points Expiry"),
+        ("Points Expiry Policy", "1.0", "4. Store Closures and System Outages"))
+
+    add("multi_hop",
+        "After the loyalty points double-credit incident, what specific corrective action followed directly from the decision to build the ledger in-house rather than adopt a commercial platform?",
+        "The ledger-level uniqueness constraint added as a second line of defense, independent of the application-level idempotency logic -- a commercial platform's internal correctness guarantees would not have been the team's problem to solve, whereas building in-house made it exactly that.",
+        True, "hard", ["multi_hop", "architecture", "incidents", "loyalty"],
+        ("Loyalty Platform Choice ADR", None, None, "Consequences: the team owns the full correctness burden"),
+        ("Loyalty Double-Credit Postmortem", None, None, "ledger-level uniqueness constraint"))
+
     # ---------------------------------------------------------- unanswerable (8)
     add("unanswerable", "What is the store's policy on accepting cryptocurrency as a payment method?",
         None, False, "medium", ["unanswerable"])
@@ -336,6 +745,55 @@ def build(pool) -> dict:
 
     add("unanswerable", "What is the store's policy on matching a competitor's Black Friday doorbuster price specifically?",
         None, False, "medium", ["unanswerable", "price_match"])
+
+    # ---------------------------------------------------------- unanswerable, continued (T-M4.13, +16)
+    add("unanswerable", "Is there a free-shipping threshold for Standard delivery?",
+        None, False, "medium", ["unanswerable", "shipping"])
+
+    add("unanswerable", "Does the store offer a layaway program?",
+        None, False, "medium", ["unanswerable"])
+
+    add("unanswerable", "Can customers pre-order an item that's currently out of stock?",
+        None, False, "medium", ["unanswerable"])
+
+    add("unanswerable", "Are employees eligible for health insurance benefits?",
+        None, False, "medium", ["unanswerable", "staff"])
+
+    add("unanswerable", "Is there an employee dress code policy?",
+        None, False, "medium", ["unanswerable", "staff"])
+
+    add("unanswerable", "What is the process for an employee to request a transfer to a different store location?",
+        None, False, "medium", ["unanswerable", "staff"])
+
+    add("unanswerable", "Does the Warranty Policy cover rental or demo units?",
+        None, False, "medium", ["unanswerable", "warranty"])
+
+    add("unanswerable", "Is there a dedicated process for business-to-business bulk purchase returns?",
+        None, False, "medium", ["unanswerable", "returns"])
+
+    add("unanswerable", "Does the store price-match against its own other store locations?",
+        None, False, "medium", ["unanswerable", "price_match"])
+
+    add("unanswerable", "Is there an annual, rather than rolling 30-day, cap on the number of price-match requests a customer can submit?",
+        None, False, "medium", ["unanswerable", "price_match"])
+
+    add("unanswerable", "Does accrued PTO transfer if an employee moves to a different store location?",
+        None, False, "medium", ["unanswerable", "staff"])
+
+    add("unanswerable", "Are remote or work-from-home shifts permitted under the Shift Policy?",
+        None, False, "medium", ["unanswerable", "staff"])
+
+    add("unanswerable", "Is there a referral bonus program for customers who refer friends?",
+        None, False, "medium", ["unanswerable"])
+
+    add("unanswerable", "Can a customer get a price adjustment if the store itself lowers the price after their purchase, separate from a competitor price match?",
+        None, False, "medium", ["unanswerable", "price_match"])
+
+    add("unanswerable", "Does the store offer installment or buy-now-pay-later payment plans?",
+        None, False, "medium", ["unanswerable"])
+
+    add("unanswerable", "What is the minimum age requirement to be hired as an employee?",
+        None, False, "medium", ["unanswerable", "staff"])
 
     # ---------------------------------------------------------- ambiguous (5)
     add("ambiguous", "What's the return window?",
@@ -372,6 +830,74 @@ def build(pool) -> dict:
         ("Returns Exception Matrix", "2.0", "2. Exception Table"),
         ("Shift Policy", "1.0", "1. Scheduling"))
 
+    # ---------------------------------------------------------- ambiguous, continued (T-M4.13, +10)
+    add("ambiguous", "How much advance notice is required?",
+        "Depends what for: 14 days for a posted schedule, 7 days for a standard PTO request (waived entirely for a genuine emergency), or 7 days before the next schedule posting for a standing availability change -- three unrelated notice requirements.",
+        True, "hard", ["ambiguous", "staff"],
+        ("Shift Policy", "1.0", "1. Scheduling"),
+        ("Leave Policy", "1.0", "2. PTO Accrual"),
+        ("Leave Policy", "1.0", "5. Emergency Leave Exception"))
+
+    add("ambiguous", "What is the warranty period?",
+        "Depends on category: 90 days full replacement for general electronics, 2 years parts/1 year labor for major appliances, 5 years structural/1 year upholstery for furniture, 1 year full replacement for small kitchen appliances -- all extendable by 1 additional year for 8% of purchase price.",
+        True, "hard", ["ambiguous", "warranty"],
+        ("Warranty Policy", "1.0", None, "Electronics (general)"),
+        ("Warranty Policy", "1.0", None, "Major Appliances"),
+        ("Warranty Policy", "1.0", None, "Structural frame"))
+
+    add("ambiguous", "Can I get cash back for a refund?",
+        "Depends on the amount: cash refunds under $75 are paid from the till directly, but cash purchases over $75 are refunded as store credit rather than cash, specifically to reduce till discrepancy risk at close.",
+        True, "hard", ["ambiguous", "cash_handling", "returns"],
+        ("Cash Handling SOP", "1.0", "4. Refund and Return Cash Handling"),
+        ("Returns Policy", "3.0", "4. Refund Method"))
+
+    add("ambiguous", "Is it eligible for exchange?",
+        "Depends which item: a clearance-tagged item within the 14-day discounted-item window can be exchanged for a different size/color at associate discretion, while a final-sale item is never eligible for return or exchange under any circumstance an associate can authorize.",
+        True, "hard", ["ambiguous", "returns"],
+        ("Returns Exception Matrix", "2.0", "3. New in This Version: Clearance-Tagged Item Exception"),
+        ("Returns Policy", "3.0", "2. Non-Returnable Items"))
+
+    add("ambiguous", "What happens if there's fraud?",
+        "Depends which kind: a gift card can be deactivated and its balance transferred with proof of purchase, a price-match request pattern consistent with abuse is flagged for manual review, and a loyalty account closed due to a fraud investigation forfeits all unredeemed points immediately -- three unrelated fraud-handling procedures.",
+        True, "hard", ["ambiguous", "gift_cards", "price_match", "loyalty"],
+        ("Gift Card Terms", "1.0", "4. Loss, Theft, and Fraud"),
+        ("Price Match Policy", "1.0", "4. Repeated or Suspicious Requests"),
+        ("Points Expiry Policy", "1.0", "5. Account Transfers and Closures"))
+
+    add("ambiguous", "How is a dispute resolved?",
+        "Depends which kind: a chargeback dispute is filed through the payment processor's merchant portal with gathered evidence, a delivery dispute is resolved via a carrier trace request, and a price-match dispute comes down to a store associate's discretion over whether a competitor listing is genuine -- three unrelated processes.",
+        True, "hard", ["ambiguous", "chargebacks", "shipping", "price_match"],
+        ("Chargeback Handling Runbook", None, None, "Filing the Dispute"),
+        ("Delivery Dispute Runbook", None, None, "file a trace request"),
+        ("Price Match Policy", "1.0", "3. Process"))
+
+    add("ambiguous", "What's required to file a claim?",
+        "Depends which kind: a warranty claim requires a matching product serial number, a chargeback claim requires evidence gathered within 5 business days of the notice, and a price-match request requires proof like a current ad or the competitor's live product page.",
+        True, "hard", ["ambiguous", "warranty", "chargebacks", "price_match"],
+        ("Warranty Policy", "1.0", None, "requires the product's serial number"),
+        ("Chargeback Handling Runbook", None, None, "Within 5 business days"),
+        ("Price Match Policy", "1.0", "1. Eligibility"))
+
+    add("ambiguous", "Does it affect tier status?",
+        "Depends on the event: a points refund from a return does not count toward tier-qualifying spend since no new spend occurred, but tier demotion for falling below a threshold only takes effect at the next quarterly review, not immediately -- two different tier-status rules that sound related but aren't.",
+        True, "hard", ["ambiguous", "loyalty"],
+        ("Loyalty Program Rules", "2.0", "4. Points Handling on Returns"),
+        ("Loyalty Program Rules", "2.0", "1. Tier Structure"))
+
+    add("ambiguous", "What's the replacement process?",
+        "Depends which kind: a warranty replacement is decided by the servicing technician based on parts availability and cost, a misdelivered-package replacement ships immediately at no cost with no investigation required, and a lost gift card replacement requires proof of the original purchase -- three unrelated \"replacement\" procedures.",
+        True, "hard", ["ambiguous", "warranty", "shipping", "gift_cards"],
+        ("Warranty Policy", "1.0", None, "Repair vs. Replacement Determination"),
+        ("Delivery Dispute Runbook", None, None, "Misdelivered Package Cases"),
+        ("Gift Card Terms", "1.0", "4. Loss, Theft, and Fraud"))
+
+    add("ambiguous", "Is the refund issued to the original payment method?",
+        "Depends on how the item was bought: an item purchased with a gift card is refunded to a (possibly new) gift card, never a different method; a price-match difference is always refunded in cash/card, never as points; and the general policy refunds to the original payment method where possible.",
+        True, "hard", ["ambiguous", "returns", "gift_cards", "price_match"],
+        ("Gift Card Terms", "1.0", "5. Returns Involving Gift Cards"),
+        ("Price Match Policy", "1.0", "5. Refund of the Difference"),
+        ("Returns Policy", "3.0", "4. Refund Method"))
+
     # ---------------------------------------------------------- version-sensitive (4)
     add("version_sensitive", "What is the current GOLD_TIER annual spend threshold?",
         "$1,500 under the current Loyalty Program Rules v2.0 -- up from $1,000 under the superseded v1.0.",
@@ -393,10 +919,26 @@ def build(pool) -> dict:
         True, "medium", ["version_sensitive", "returns"],
         ("Returns Exception Matrix", "2.0", "3. New in This Version: Clearance-Tagged Item Exception"))
 
+    # ---------------------------------------------------------- version-sensitive, continued (T-M4.13, +3)
+    add("version_sensitive", "Under the current loyalty program rules, how quickly is the points portion of a return refunded?",
+        "Within 24 hours under the current Loyalty Program Rules v2.0 -- down from within 5 business days under the superseded v1.0.",
+        True, "medium", ["version_sensitive", "loyalty"],
+        ("Loyalty Program Rules", "2.0", "4. Points Handling on Returns"))
+
+    add("version_sensitive", "Under the current Returns Policy, does a restocking fee apply to an opened electronics item accepted outside the standard return window?",
+        "No -- the current Returns Policy v3.0's electronics exception doesn't mention a restocking fee at all, unlike the superseded v2.0, which specified a fee of up to 15% at associate discretion.",
+        True, "medium", ["version_sensitive", "returns"],
+        ("Returns Policy", "3.0", "3. Exceptions > 3.1 Electronics; 3.2 Discounted Items"))
+
+    add("version_sensitive", "Under the current loyalty program rules, is a promotional discount applied proportionally when calculating a points refund on an item bought with blended points and card?",
+        "Yes -- this is an explicit step added in Loyalty Program Rules v2.0 Section 4 that wasn't present under the superseded v1.0's points-handling-on-returns section.",
+        True, "medium", ["version_sensitive", "loyalty"],
+        ("Loyalty Program Rules", "2.0", "4. Points Handling on Returns"))
+
     counts = Counter(q["category"] for q in questions)
     for cat, n in EXPECTED_COUNTS.items():
         assert counts[cat] == n, f"{cat}: expected {n}, got {counts[cat]}"
-    assert len(questions) == 50, f"expected 50 total, got {len(questions)}"
+    assert len(questions) == 151, f"expected 151 total, got {len(questions)}"
 
     return {"version": 1, "questions": questions}
 
