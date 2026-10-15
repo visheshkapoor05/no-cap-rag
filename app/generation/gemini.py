@@ -5,11 +5,30 @@ app/embeddings/gemini.py's singleton/lifecycle pattern exactly.
 from __future__ import annotations
 
 from google import genai
+from google.genai import errors as genai_errors
 from google.genai import types
 from pydantic import BaseModel, ValidationError
+from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponential
 
 from app.core.config import get_settings
 from app.generation.provider import SchemaT
+
+# Gemini's own SDK already retries transport-level failures; a 503
+# UNAVAILABLE is the API itself returning a valid HTTP response that says
+# "try again later" -- real transient flakiness observed mid-run during
+# T-M4.14's benchmark, not a bug to fix in the request. Retry that specific
+# case with backoff; anything else (4xx, schema problems) should surface
+# immediately rather than being retried blindly.
+def _is_transient_server_error(exc: BaseException) -> bool:
+    return isinstance(exc, genai_errors.ServerError) and exc.code in (429, 500, 503, 504)
+
+
+_retry_transient = retry(
+    retry=retry_if_exception(_is_transient_server_error),
+    wait=wait_exponential(multiplier=2, max=30),
+    stop=stop_after_attempt(4),
+    reraise=True,
+)
 
 # Verified live against the real Gemini API's model list (D-003's "verify
 # current Gemini model IDs" instruction) -- not recalled from memory. A
@@ -38,7 +57,7 @@ class GeminiLLMProvider:
 
     def generate_text(self, prompt: str, *, system: str | None = None, temperature: float = 0.7) -> str:
         config = types.GenerateContentConfig(system_instruction=system, temperature=temperature)
-        result = self._client.models.generate_content(model=MODEL_ID, contents=prompt, config=config)
+        result = self._generate_content(prompt, config)
         return result.text
 
     def generate_structured(
@@ -50,7 +69,7 @@ class GeminiLLMProvider:
             response_mime_type="application/json",
             response_schema=schema,
         )
-        result = self._client.models.generate_content(model=MODEL_ID, contents=prompt, config=config)
+        result = self._generate_content(prompt, config)
         parsed = self._parse(result, schema)
         if parsed is not None:
             return parsed
@@ -66,7 +85,7 @@ class GeminiLLMProvider:
                 original_prompt=prompt, error="response was not valid JSON for the schema"
             )
 
-        retry_result = self._client.models.generate_content(model=MODEL_ID, contents=repair_prompt, config=config)
+        retry_result = self._generate_content(repair_prompt, config)
         retried = self._parse(retry_result, schema)
         if retried is not None:
             return retried
@@ -77,6 +96,10 @@ class GeminiLLMProvider:
             raise GenerationError(
                 f"structured generation failed schema validation twice: {second_error}"
             ) from second_error
+
+    @_retry_transient
+    def _generate_content(self, contents: str, config: types.GenerateContentConfig) -> types.GenerateContentResponse:
+        return self._client.models.generate_content(model=MODEL_ID, contents=contents, config=config)
 
     @staticmethod
     def _parse(result: types.GenerateContentResponse, schema: type[SchemaT]) -> SchemaT | None:

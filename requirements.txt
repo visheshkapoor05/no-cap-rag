@@ -13,6 +13,7 @@ tiktoken>=0.8
 pymilvus>=3.0.2
 google-genai>=1.0
 rank-bm25>=0.2.2
+tenacity>=9.0
 
 # T-M4.5: local cross-encoder reranker. CPU-only torch via PyTorch's own
 # index -- the default PyPI wheel pulls in an unneeded, much larger CUDA

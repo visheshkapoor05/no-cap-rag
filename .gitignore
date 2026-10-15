@@ -227,3 +227,7 @@ scripts/blueprint_artifact.out.html
 # evals/run_m3_experiment.py; evals/results/M3_retrieval.md is the committed
 # summary that matters.
 evals/results/m3_experiment_raw.json
+
+# evals/run_m4_experiment.py; evals/results/M4_benchmark.md is the committed
+# summary that matters.
+evals/results/m4_experiment_raw.json
