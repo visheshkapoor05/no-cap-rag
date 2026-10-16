@@ -77,7 +77,8 @@ constructing artificial combinations.
 - **50 is a seed, not a benchmark.** T-M4.13 explicitly expands this to
   150–200 questions once M3's real failure modes are known — writing
   adversarial cases *after* watching the system fail for real produces
-  better questions than inventing them up front.
+  better questions than inventing them up front. **Done as of M4** — see
+  the M4 section below; the set is now 151 questions.
 - **A synthetic corpus can't fully replace real-world messiness.** The
   `mixed/` documents deliberately inject real extraction failure modes
   (broken tables, scrambled columns), but the underlying language is still
@@ -111,6 +112,81 @@ why the split, and
 [D-014](./DECISIONS.md#d-014--precisionk-at-a-fixed-k-is-the-wrong-headline-precision-metric--use-r-precision)
 for why R-Precision, not fixed-K Precision@K, is the one that actually gets
 reported once they exist.
+
+## M4: 151 questions, generation-quality metrics, and an LLM judge
+
+The golden set grew from 50 to 151 questions at T-M4.13
+(`evals/golden_set/build.py`), all newly authored against a fresh full
+read of all 28 documents' real chunk text — not reused or paraphrased
+from the original 50. `version_sensitive` grew from 4 to 7 (not
+proportionally to ~12): the corpus has exactly two genuinely versioned
+document pairs, every real version-to-version difference was enumerated
+by hand, and inventing a fake one to hit a round number would violate
+the golden set's whole reason to exist.
+
+### R-Precision and NDCG (deferred from M2, implemented at M4)
+
+`app/evaluation/metrics.py` (T-M4.9) adds `precision_at_k()`,
+`r_precision()`, and `ndcg()`. **R-Precision**, not fixed-K Precision@K,
+is the headline precision metric reported — see
+[D-014](./DECISIONS.md#d-014--precisionk-at-a-fixed-k-is-the-wrong-headline-precision-metric--use-r-precision)
+for why a fixed K systematically under-reports precision on a corpus
+where most questions have exactly one relevant chunk. NDCG rewards rank
+position via `1/log2(rank+1)` discounting, normalized against the ideal
+ordering — implemented but not yet the headline metric in any report;
+R-Precision and MRR together already cover what this corpus's question
+mix needs distinguished.
+
+### Generation-quality metrics
+
+Three dimensions, scored by an LLM judge (`app/evaluation/judge.py`,
+`judge_rubric_v2`) against the real context a generation call was shown,
+and a reference answer when one exists:
+
+- **Faithfulness** — of the answer's claims, how many are actually
+  supported by the specific context chunk(s) they cite? A claim citing
+  a real, valid bracket number whose chunk doesn't say what the claim
+  states is unfaithful even though the citation itself is "valid."
+- **Correctness** — does the answer's summary correctly and completely
+  address the question, compared against the reference answer when one
+  exists?
+- **Citation support rate** — the same faithfulness fraction, reported
+  as its own explicit number: how many claims hold up under direct
+  scrutiny of their cited context.
+
+The rubric names three specific failure modes to resist rather than
+hoping against them generically: position bias, verbosity bias, and
+self-preference (the judge is the same model family as the generator —
+a real, honestly-stated limitation the rubric can instruct against but
+not structurally eliminate; see below). `judge_rubric_v2` (bumped from
+v1 at T-M4.16) also requires the judge to verify an abstention's premise
+against the context's own version markers before accepting it as
+correct — v1 accepted `answerable=false` at face value, which T-M4.15's
+hand-scoring caught as a real bug, not a hypothetical one.
+
+### T-M4.15: hand-score agreement — the gate on everything above
+
+20 real answers, independently scored before reading the judge's own
+verdict, specifically to test whether the judge's structural
+self-preference risk shows up in practice. **18/20 (90%) exact or
+near-exact three-way agreement, zero disagreement on Faithfulness or
+Citation support.** The two real disagreements were both on
+Correctness and both traced to one concrete, fixable bug (version never
+reaching the prompt — fixed at T-M4.16) rather than a broken rubric.
+Full writeup, including the raw comparison table:
+[`evals/results/M4_handscore_agreement.md`](./evals/results/M4_handscore_agreement.md).
+
+### The full benchmark ladder
+
+Three retrieval configs (baseline dense, +hybrid, +reranker) × seven
+metrics (Recall@5, MRR, R-Precision, Faithfulness, Correctness, Citation
+support, P95 latency), plus two ablations — does the contextual prefix
+earn its keep (Experiment E), does the context builder's dedup/budget
+logic change generation quality (Experiment F). Full numbers and
+reading: [`evals/results/M4_benchmark.md`](./evals/results/M4_benchmark.md).
+Three documented real failures, one fixed and measured, two left as
+honestly-reported open limitations:
+[`evals/results/M4_failure_analysis.md`](./evals/results/M4_failure_analysis.md).
 
 ## Supporting proofs
 

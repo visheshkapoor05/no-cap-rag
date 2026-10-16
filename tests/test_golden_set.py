@@ -1,25 +1,26 @@
-"""T-M2.9: the committed golden set is exactly 50 questions, matches the
-planned category breakdown, and every relevant_chunks/relevant_docs spec it
-carries still resolves to exactly one real row in Postgres right now -- a
-golden label that's gone stale (e.g. the corpus was re-chunked with
-different guard thresholds) would silently make every metric computed
-against that question meaningless."""
+"""T-M2.9/T-M4.13: the committed golden set is exactly 151 questions
+(expanded from the original 50 at T-M4.13), matches the planned category
+breakdown, and every relevant_chunks/relevant_docs spec it carries still
+resolves to exactly one real row in Postgres right now -- a golden label
+that's gone stale (e.g. the corpus was re-chunked with different guard
+thresholds) would silently make every metric computed against that
+question meaningless."""
 from collections import Counter
 
 from evals.golden_set import load_golden_set, resolve_chunk_ids, resolve_doc_ids
 
 EXPECTED_COUNTS = {
-    "factual_lookup": 15,
-    "exact_identifier": 8,
-    "multi_hop": 10,
-    "unanswerable": 8,
-    "ambiguous": 5,
-    "version_sensitive": 4,
+    "factual_lookup": 52,
+    "exact_identifier": 25,
+    "multi_hop": 28,
+    "unanswerable": 24,
+    "ambiguous": 15,
+    "version_sensitive": 7,
 }
 
 
-def test_total_is_fifty_questions():
-    assert len(load_golden_set()) == 50
+def test_total_is_151_questions():
+    assert len(load_golden_set()) == 151
 
 
 def test_category_counts_match_the_plan():
@@ -72,6 +73,6 @@ def test_version_sensitive_questions_point_at_the_currently_effective_version():
     document -- the whole point of the category is testing whether the
     system picks the CURRENT policy, not whether it can find both versions."""
     version_sensitive = [q for q in load_golden_set() if q.category == "version_sensitive"]
-    assert len(version_sensitive) == 4
+    assert len(version_sensitive) == 7
     for q in version_sensitive:
         assert len(q.relevant_docs) == 1, q.id

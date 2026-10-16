@@ -8,7 +8,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.api.documents import router as documents_router
+from app.api.experiments import router as experiments_router
 from app.api.health import router as health_router
+from app.api.query import router as query_router
 from app.api.retrieve import router as retrieve_router
 from app.core.config import get_settings
 from app.core.db import close_pool, get_pool
@@ -16,6 +18,8 @@ from app.core.exceptions import register_exception_handlers
 from app.core.logging import configure_logging
 from app.core.middleware import RequestLoggingMiddleware
 from app.embeddings.gemini import close_embedding_provider, get_embedding_provider
+from app.generation.gemini import close_llm_provider, get_llm_provider
+from app.reranking import close_reranker, get_reranker
 from app.retrieval import close_client, get_client
 from app.retrieval.sparse import close_sparse_retriever, get_sparse_retriever
 
@@ -35,8 +39,12 @@ async def lifespan(app: FastAPI):
          the BM25 index (tokenizing the whole corpus on the first real
          `/retrieve` call, instead of at startup, would make that one
          visitor wait for everyone else's work).
-      5. Hand control to the running office for as long as it's open.
-      6. Close every connection cleanly on shutdown.
+      5. Bring on the second-stage reviewer (T-M4.5, loads real model
+         weights off disk -- real cost, startup-time like everything
+         else) and the drafting desk (T-M4.7, one genai.Client for
+         generation, separate from the embedding one above).
+      6. Hand control to the running office for as long as it's open.
+      7. Close every connection cleanly on shutdown.
     """
     settings = get_settings()
     configure_logging(settings.log_level)
@@ -44,7 +52,11 @@ async def lifespan(app: FastAPI):
     get_client()
     get_embedding_provider()
     get_sparse_retriever()
+    get_reranker()
+    get_llm_provider()
     yield
+    close_llm_provider()
+    close_reranker()
     close_sparse_retriever()
     close_embedding_provider()
     close_client()
@@ -59,6 +71,8 @@ def create_app() -> FastAPI:
     app.include_router(health_router)
     app.include_router(documents_router)
     app.include_router(retrieve_router)
+    app.include_router(query_router)
+    app.include_router(experiments_router)
     return app
 
 

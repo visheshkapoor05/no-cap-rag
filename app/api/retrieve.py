@@ -47,6 +47,7 @@ class RetrievedChunkResponse(BaseModel):
     chunk_id: str
     document_id: str
     document_title: str
+    document_version: str | None
     section_path: str
     text: str
     score: float
@@ -63,7 +64,7 @@ def _resolve(chunks: list[RetrievedChunk]) -> list[RetrievedChunkResponse]:
     pool = get_pool()
     records = get_chunks_by_ids(pool, [c.chunk_id for c in chunks])
 
-    title_cache: dict[str, str] = {}
+    title_cache: dict[str, tuple[str, str | None]] = {}
     resolved: list[RetrievedChunkResponse] = []
     for chunk in chunks:
         record = records.get(chunk.chunk_id)
@@ -75,11 +76,15 @@ def _resolve(chunks: list[RetrievedChunk]) -> list[RetrievedChunkResponse]:
         doc_id = str(record.document_id)
         if doc_id not in title_cache:
             document = get_document(pool, record.document_id)
-            title_cache[doc_id] = document.title if document else "(unknown document)"
+            title_cache[doc_id] = (
+                (document.title, document.version) if document else ("(unknown document)", None)
+            )
+        title, version = title_cache[doc_id]
         resolved.append(RetrievedChunkResponse(
             chunk_id=chunk.chunk_id,
             document_id=doc_id,
-            document_title=title_cache[doc_id],
+            document_title=title,
+            document_version=version,
             section_path=record.section_path,
             text=record.text,
             score=chunk.score,

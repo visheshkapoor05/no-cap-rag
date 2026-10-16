@@ -246,6 +246,619 @@ questions:
   difficulty: easy
   tags:
   - loyalty
+- id: factual_lookup-16
+  category: factual_lookup
+  question: What is the minimum and maximum denomination for a gift card?
+  expected_answer: $10 to $500.
+  relevant_docs:
+  - title: Gift Card Terms
+    version: '1.0'
+  relevant_chunks:
+  - title: Gift Card Terms
+    version: '1.0'
+    section: 1. Issuance
+    text: null
+  answerable: true
+  difficulty: easy
+  tags:
+  - gift_cards
+- id: factual_lookup-17
+  category: factual_lookup
+  question: What's required to get a replacement for a lost physical gift card?
+  expected_answer: The original purchase receipt or activation record -- without proof of the original
+    balance, no replacement or transfer is possible.
+  relevant_docs:
+  - title: Gift Card Terms
+    version: '1.0'
+  relevant_chunks:
+  - title: Gift Card Terms
+    version: '1.0'
+    section: 4. Loss, Theft, and Fraud
+    text: null
+  answerable: true
+  difficulty: easy
+  tags:
+  - gift_cards
+- id: factual_lookup-18
+  category: factual_lookup
+  question: At how many days on the sales floor does an item first get marked down, and by how much?
+  expected_answer: 45 days, marked down 20%.
+  relevant_docs:
+  - title: Markdown Policy
+    version: null
+  relevant_chunks:
+  - title: Markdown Policy
+    version: null
+    section: null
+    text: 20% at 45 days
+  answerable: true
+  difficulty: easy
+  tags:
+  - promotions
+- id: factual_lookup-19
+  category: factual_lookup
+  question: At what markdown percentage is an item physically re-tagged as clearance?
+  expected_answer: 40% or deeper.
+  relevant_docs:
+  - title: Markdown Policy
+    version: null
+  relevant_chunks:
+  - title: Markdown Policy
+    version: null
+    section: null
+    text: clearance" in addition
+  answerable: true
+  difficulty: easy
+  tags:
+  - promotions
+- id: factual_lookup-20
+  category: factual_lookup
+  question: Who must approve reversing a markdown that was applied due to a pricing error?
+  expected_answer: Regional merchandising approval -- it cannot be done at store level.
+  relevant_docs:
+  - title: Markdown Policy
+    version: null
+  relevant_chunks:
+  - title: Markdown Policy
+    version: null
+    section: null
+    text: Markdown Reversal
+  answerable: true
+  difficulty: medium
+  tags:
+  - promotions
+- id: factual_lookup-21
+  category: factual_lookup
+  question: What markdown percentage is applied to seasonal inventory at season transition?
+  expected_answer: 30%, two weeks before a further 50% markdown and eventual full clearance liquidation
+    up to 70%.
+  relevant_docs:
+  - title: Markdown Policy
+    version: null
+  relevant_chunks:
+  - title: Markdown Policy
+    version: null
+    section: null
+    text: End-of-Season Markdown
+  answerable: true
+  difficulty: easy
+  tags:
+  - promotions
+- id: factual_lookup-22
+  category: factual_lookup
+  question: Under the Summer BOGO campaign, what discount applies to the lower-priced qualifying item?
+  expected_answer: 50% off.
+  relevant_docs:
+  - title: Campaign Brief — BOGO
+    version: null
+  relevant_chunks:
+  - title: Campaign Brief — BOGO
+    version: null
+    section: null
+    text: discounted 50%
+  answerable: true
+  difficulty: easy
+  tags:
+  - promotions
+- id: factual_lookup-23
+  category: factual_lookup
+  question: By how much can the Summer BOGO campaign's actual margin impact exceed its modeled ceiling
+    before early termination is considered?
+  expected_answer: More than 15% in any 3-day window, with 48 hours' notice to stores before the promotion
+    is pulled.
+  relevant_docs:
+  - title: Campaign Brief — BOGO
+    version: null
+  relevant_chunks:
+  - title: Campaign Brief — BOGO
+    version: null
+    section: null
+    text: 15% in any 3-day window
+  answerable: true
+  difficulty: medium
+  tags:
+  - promotions
+- id: factual_lookup-24
+  category: factual_lookup
+  question: What is the employee discount purchase cap?
+  expected_answer: $2,000 per rolling 30-day period -- purchases beyond the cap are still permitted but
+    don't receive the discount on the excess.
+  relevant_docs:
+  - title: Employee Discount Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: Employee Discount Policy
+    version: '1.0'
+    section: 4. Purchase Limits
+    text: null
+  answerable: true
+  difficulty: easy
+  tags:
+  - staff
+- id: factual_lookup-25
+  category: factual_lookup
+  question: What does an extended warranty add-on cost?
+  expected_answer: 8% of the item's purchase price, and it must be purchased at the time of sale, not
+    added retroactively.
+  relevant_docs:
+  - title: Warranty Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: Warranty Policy
+    version: '1.0'
+    section: null
+    text: 8% of the item
+  answerable: true
+  difficulty: easy
+  tags:
+  - warranty
+- id: factual_lookup-26
+  category: factual_lookup
+  question: Above what repair-cost percentage is a warranty claim resolved via replacement instead of
+    repair?
+  expected_answer: When repair cost would exceed 60% of the item's original purchase price, or when parts
+    are discontinued.
+  relevant_docs:
+  - title: Warranty Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: Warranty Policy
+    version: '1.0'
+    section: null
+    text: 60% of the item
+  answerable: true
+  difficulty: medium
+  tags:
+  - warranty
+- id: factual_lookup-27
+  category: factual_lookup
+  question: How long is the structural-frame warranty on furniture?
+  expected_answer: 5 years (upholstery/fabric coverage is 1 year).
+  relevant_docs:
+  - title: Warranty Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: Warranty Policy
+    version: '1.0'
+    section: null
+    text: Structural frame
+  answerable: true
+  difficulty: easy
+  tags:
+  - warranty
+- id: factual_lookup-28
+  category: factual_lookup
+  question: How long is the parts warranty on major appliances?
+  expected_answer: 2 years for parts; labor is covered for 1 year.
+  relevant_docs:
+  - title: Warranty Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: Warranty Policy
+    version: '1.0'
+    section: null
+    text: Major Appliances
+  answerable: true
+  difficulty: easy
+  tags:
+  - warranty
+- id: factual_lookup-29
+  category: factual_lookup
+  question: Within how many days must a new owner register a warranty transfer after taking possession
+    of a gifted or resold item?
+  expected_answer: 30 days, providing the original receipt and the original purchaser's written consent.
+  relevant_docs:
+  - title: Warranty Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: Warranty Policy
+    version: '1.0'
+    section: null
+    text: Warranty Transfer
+  answerable: true
+  difficulty: medium
+  tags:
+  - warranty
+- id: factual_lookup-30
+  category: factual_lookup
+  question: What is the typical delivery window for Expedited shipping?
+  expected_answer: 2-3 business days, guaranteed or the shipping charge is refunded.
+  relevant_docs:
+  - title: Shipping Policy
+    version: null
+  relevant_chunks:
+  - title: Shipping Policy
+    version: null
+    section: null
+    text: Expedited | 2
+  answerable: true
+  difficulty: easy
+  tags:
+  - shipping
+- id: factual_lookup-31
+  category: factual_lookup
+  question: What is the typical delivery window for a freight (large item) shipment?
+  expected_answer: 7-14 business days, not guaranteed.
+  relevant_docs:
+  - title: Shipping Policy
+    version: null
+  relevant_chunks:
+  - title: Shipping Policy
+    version: null
+    section: null
+    text: Freight (large item)
+  answerable: true
+  difficulty: easy
+  tags:
+  - shipping
+- id: factual_lookup-32
+  category: factual_lookup
+  question: Up until what point in order fulfillment can a shipping address be changed at no cost?
+  expected_answer: Until the order enters "picking" status, typically within 2 hours of order placement.
+  relevant_docs:
+  - title: Shipping Policy
+    version: null
+  relevant_chunks:
+  - title: Shipping Policy
+    version: null
+    section: null
+    text: without cost up until
+  answerable: true
+  difficulty: medium
+  tags:
+  - shipping
+- id: factual_lookup-33
+  category: factual_lookup
+  question: After how many price-match requests within a rolling 30-day period is a customer flagged for
+    manual review?
+  expected_answer: More than 5.
+  relevant_docs:
+  - title: Price Match Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: Price Match Policy
+    version: '1.0'
+    section: 4. Repeated or Suspicious Requests
+    text: null
+  answerable: true
+  difficulty: medium
+  tags:
+  - price_match
+- id: factual_lookup-34
+  category: factual_lookup
+  question: Within how many days after purchase can a customer submit a post-purchase online price-match
+    request?
+  expected_answer: 14 days.
+  relevant_docs:
+  - title: Price Match Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: Price Match Policy
+    version: '1.0'
+    section: 3. Process
+    text: null
+  answerable: true
+  difficulty: easy
+  tags:
+  - price_match
+- id: factual_lookup-35
+  category: factual_lookup
+  question: At what variance percentage does a stock-take zone require a recount before the count is finalized?
+  expected_answer: A variance of 2-5% requires a recount of that zone alone.
+  relevant_docs:
+  - title: Stock Take SOP
+    version: null
+  relevant_chunks:
+  - title: Stock Take SOP
+    version: null
+    section: null
+    text: 2–5% requires
+  answerable: true
+  difficulty: medium
+  tags:
+  - inventory
+- id: factual_lookup-36
+  category: factual_lookup
+  question: Within how many hours of count completion must stock-take sheets be submitted to regional
+    inventory control?
+  expected_answer: 48 hours.
+  relevant_docs:
+  - title: Stock Take SOP
+    version: null
+  relevant_chunks:
+  - title: Stock Take SOP
+    version: null
+    section: null
+    text: 48 hours of count completion
+  answerable: true
+  difficulty: easy
+  tags:
+  - inventory
+- id: factual_lookup-37
+  category: factual_lookup
+  question: Above what dollar amount does an opening till-count discrepancy get logged and reported to
+    the shift lead immediately?
+  expected_answer: Over $2.
+  relevant_docs:
+  - title: Cash Handling SOP
+    version: '1.0'
+  relevant_chunks:
+  - title: Cash Handling SOP
+    version: '1.0'
+    section: 2. Opening Count
+    text: null
+  answerable: true
+  difficulty: easy
+  tags:
+  - cash_handling
+- id: factual_lookup-38
+  category: factual_lookup
+  question: What closing till discrepancy amount requires same-shift shift-lead review?
+  expected_answer: $5-$25 -- under $5 is logged with no escalation, over $25 requires a full transaction-log
+    review before the associate leaves.
+  relevant_docs:
+  - title: Cash Handling SOP
+    version: '1.0'
+  relevant_chunks:
+  - title: Cash Handling SOP
+    version: '1.0'
+    section: 5. Closing Count and Discrepancy Reporting
+    text: null
+  answerable: true
+  difficulty: medium
+  tags:
+  - cash_handling
+- id: factual_lookup-39
+  category: factual_lookup
+  question: What paid and unpaid breaks are included in a shift of 5 hours or more?
+  expected_answer: One paid 15-minute break and one unpaid 30-minute meal break.
+  relevant_docs:
+  - title: Shift Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: Shift Policy
+    version: '1.0'
+    section: 2. Breaks
+    text: null
+  answerable: true
+  difficulty: easy
+  tags:
+  - staff
+- id: factual_lookup-40
+  category: factual_lookup
+  question: How many days in advance are employee schedules posted?
+  expected_answer: 14 days.
+  relevant_docs:
+  - title: Shift Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: Shift Policy
+    version: '1.0'
+    section: 1. Scheduling
+    text: null
+  answerable: true
+  difficulty: easy
+  tags:
+  - staff
+- id: factual_lookup-41
+  category: factual_lookup
+  question: How many unexcused no-shows within a rolling 90-day period trigger a formal attendance review?
+  expected_answer: Two.
+  relevant_docs:
+  - title: Shift Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: Shift Policy
+    version: '1.0'
+    section: 5. Attendance and No-Shows
+    text: null
+  answerable: true
+  difficulty: easy
+  tags:
+  - staff
+- id: factual_lookup-42
+  category: factual_lookup
+  question: Below what order value may a shift lead authorize an immediate replacement without waiting
+    for a carrier trace to complete?
+  expected_answer: Under $30.
+  relevant_docs:
+  - title: Delivery Dispute Runbook
+    version: null
+  relevant_chunks:
+  - title: Delivery Dispute Runbook
+    version: null
+    section: null
+    text: under $30
+  answerable: true
+  difficulty: medium
+  tags:
+  - shipping
+- id: factual_lookup-43
+  category: factual_lookup
+  question: How many delivery disputes within a rolling 6-month period flags an account for manual review?
+  expected_answer: 3 or more.
+  relevant_docs:
+  - title: Delivery Dispute Runbook
+    version: null
+  relevant_chunks:
+  - title: Delivery Dispute Runbook
+    version: null
+    section: null
+    text: 3 or more delivery disputes
+  answerable: true
+  difficulty: medium
+  tags:
+  - shipping
+- id: factual_lookup-44
+  category: factual_lookup
+  question: Within how many business days of a chargeback notice must evidence be gathered?
+  expected_answer: 5 business days.
+  relevant_docs:
+  - title: Chargeback Handling Runbook
+    version: null
+  relevant_chunks:
+  - title: Chargeback Handling Runbook
+    version: null
+    section: null
+    text: Within 5 business days
+  answerable: true
+  difficulty: medium
+  tags:
+  - chargebacks
+- id: factual_lookup-45
+  category: factual_lookup
+  question: What is the typical deadline to respond to a chargeback before it's automatically decided
+    in the customer's favor?
+  expected_answer: 10-14 business days, per the card issuer's deadline.
+  relevant_docs:
+  - title: Chargeback Handling Runbook
+    version: null
+  relevant_chunks:
+  - title: Chargeback Handling Runbook
+    version: null
+    section: null
+    text: 10–14 business days
+  answerable: true
+  difficulty: medium
+  tags:
+  - chargebacks
+- id: factual_lookup-46
+  category: factual_lookup
+  question: What is the annual spend threshold for PLATINUM_TIER under the current loyalty program rules?
+  expected_answer: $5,000.
+  relevant_docs:
+  - title: Loyalty Program Rules
+    version: '2.0'
+  relevant_chunks:
+  - title: Loyalty Program Rules
+    version: '2.0'
+    section: 1. Tier Structure
+    text: null
+  answerable: true
+  difficulty: easy
+  tags:
+  - loyalty
+- id: factual_lookup-47
+  category: factual_lookup
+  question: What was the card transaction failure rate during the Payment Gateway Failure incident?
+  expected_answer: Approximately 35% of attempts, for 22 minutes store-wide.
+  relevant_docs:
+  - title: Payment Gateway Failure Postmortem
+    version: null
+  relevant_chunks:
+  - title: Payment Gateway Failure Postmortem
+    version: null
+    section: null
+    text: 35% of attempts
+  answerable: true
+  difficulty: medium
+  tags:
+  - incidents
+- id: factual_lookup-48
+  category: factual_lookup
+  question: Approximately how long did the POS Outage incident last?
+  expected_answer: Approximately 47 minutes.
+  relevant_docs:
+  - title: POS Outage Postmortem
+    version: null
+  relevant_chunks:
+  - title: POS Outage Postmortem
+    version: null
+    section: null
+    text: 47 minutes
+  answerable: true
+  difficulty: medium
+  tags:
+  - incidents
+- id: factual_lookup-49
+  category: factual_lookup
+  question: Approximately how many SKUs had incorrect online-availability counts during the Inventory
+    Sync Failure incident?
+  expected_answer: Approximately 4,100 SKUs across all stores, for a three-day window.
+  relevant_docs:
+  - title: Inventory Sync Failure Postmortem
+    version: null
+  relevant_chunks:
+  - title: Inventory Sync Failure Postmortem
+    version: null
+    section: null
+    text: 4,100 SKUs
+  answerable: true
+  difficulty: medium
+  tags:
+  - incidents
+- id: factual_lookup-50
+  category: factual_lookup
+  question: Approximately how many transactions were affected by the Loyalty Points Double-Credit incident?
+  expected_answer: Approximately 1,900 transactions of the day's roughly 40,000, at a total write-off
+    cost of about $4,200.
+  relevant_docs:
+  - title: Loyalty Double-Credit Postmortem
+    version: null
+  relevant_chunks:
+  - title: Loyalty Double-Credit Postmortem
+    version: null
+    section: null
+    text: roughly 1,900
+  answerable: true
+  difficulty: medium
+  tags:
+  - incidents
+  - loyalty
+- id: factual_lookup-51
+  category: factual_lookup
+  question: Does warranty coverage begin on the purchase date or the delivery date for a shipped order?
+  expected_answer: The purchase date, as shown on the original receipt or order confirmation -- not the
+    delivery date.
+  relevant_docs:
+  - title: Warranty Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: Warranty Policy
+    version: '1.0'
+    section: null
+    text: begins on the date of purchase
+  answerable: true
+  difficulty: medium
+  tags:
+  - warranty
+- id: factual_lookup-52
+  category: factual_lookup
+  question: What is the restocking fee that may apply to an opened electronics return accepted outside
+    the standard window?
+  expected_answer: Up to 15%, applied at associate discretion.
+  relevant_docs:
+  - title: Returns Policy
+    version: '2.0'
+  relevant_chunks:
+  - title: Returns Policy
+    version: '2.0'
+    section: 3. Exceptions > 3.1 Electronics
+    text: null
+  answerable: true
+  difficulty: medium
+  tags:
+  - returns
 - id: exact_identifier-01
   category: exact_identifier
   question: What does incident code POS-ERR-3021 refer to?
@@ -391,6 +1004,310 @@ questions:
   tags:
   - identifier
   - cash_handling
+- id: exact_identifier-09
+  category: exact_identifier
+  question: What is runbook RUN-CHG-003 used for?
+  expected_answer: The Chargeback Handling Runbook -- used when a card issuer notifies the store of a
+    customer-initiated chargeback.
+  relevant_docs:
+  - title: Chargeback Handling Runbook
+    version: null
+  relevant_chunks:
+  - title: Chargeback Handling Runbook
+    version: null
+    section: null
+    text: 'Runbook ID: RUN-CHG-003'
+  answerable: true
+  difficulty: medium
+  tags:
+  - identifier
+  - chargebacks
+- id: exact_identifier-10
+  category: exact_identifier
+  question: What is runbook RUN-DEL-002 used for?
+  expected_answer: The Delivery Dispute Runbook -- used when a customer reports an online order as not
+    received despite carrier tracking showing delivery.
+  relevant_docs:
+  - title: Delivery Dispute Runbook
+    version: null
+  relevant_chunks:
+  - title: Delivery Dispute Runbook
+    version: null
+    section: null
+    text: 'Runbook ID: RUN-DEL-002'
+  answerable: true
+  difficulty: medium
+  tags:
+  - identifier
+  - shipping
+- id: exact_identifier-11
+  category: exact_identifier
+  question: What is policy GC-POL-001?
+  expected_answer: The Gift Card Terms -- issuance, balance/expiry, redemption, loss/theft/fraud, and
+    returns involving gift cards.
+  relevant_docs:
+  - title: Gift Card Terms
+    version: '1.0'
+  relevant_chunks:
+  - title: Gift Card Terms
+    version: '1.0'
+    section: null
+    text: Policy ID:** GC-POL-001
+  answerable: true
+  difficulty: medium
+  tags:
+  - identifier
+  - gift_cards
+- id: exact_identifier-12
+  category: exact_identifier
+  question: What is policy STAFF-POL-001?
+  expected_answer: The Shift Policy -- scheduling, breaks, overtime, minimum rest between shifts, and
+    attendance.
+  relevant_docs:
+  - title: Shift Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: Shift Policy
+    version: '1.0'
+    section: null
+    text: Policy ID:** STAFF-POL-001
+  answerable: true
+  difficulty: medium
+  tags:
+  - identifier
+  - staff
+- id: exact_identifier-13
+  category: exact_identifier
+  question: What is policy STAFF-POL-002?
+  expected_answer: The Employee Discount Policy -- the 20% standard staff discount and its interactions
+    with loyalty points, markdowns, and purchase limits.
+  relevant_docs:
+  - title: Employee Discount Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: Employee Discount Policy
+    version: '1.0'
+    section: null
+    text: Policy ID:** STAFF-POL-002
+  answerable: true
+  difficulty: medium
+  tags:
+  - identifier
+  - staff
+- id: exact_identifier-14
+  category: exact_identifier
+  question: What is policy STAFF-POL-003?
+  expected_answer: The Leave Policy -- PTO, sick leave, bereavement leave, and unpaid personal leave.
+  relevant_docs:
+  - title: Leave Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: Leave Policy
+    version: '1.0'
+    section: null
+    text: Policy ID:** STAFF-POL-003
+  answerable: true
+  difficulty: medium
+  tags:
+  - identifier
+  - staff
+- id: exact_identifier-15
+  category: exact_identifier
+  question: What is policy LOY-POL-001?
+  expected_answer: The Loyalty Program Rules -- tier structure, points accrual, redemption, points handling
+    on returns, and points expiry (headline rule).
+  relevant_docs:
+  - title: Loyalty Program Rules
+    version: '2.0'
+  relevant_chunks:
+  - title: Loyalty Program Rules
+    version: '2.0'
+    section: null
+    text: Policy ID:** LOY-POL-001 · **Version:** 2.0
+  answerable: true
+  difficulty: medium
+  tags:
+  - identifier
+  - loyalty
+- id: exact_identifier-16
+  category: exact_identifier
+  question: What is policy LOY-POL-002?
+  expected_answer: The Points Expiry Policy -- the detailed reference for point expiry mechanics, including
+    account inactivity and store-closure reinstatement.
+  relevant_docs:
+  - title: Points Expiry Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: Points Expiry Policy
+    version: '1.0'
+    section: null
+    text: Policy ID:** LOY-POL-002
+  answerable: true
+  difficulty: medium
+  tags:
+  - identifier
+  - loyalty
+- id: exact_identifier-17
+  category: exact_identifier
+  question: What is policy PM-POL-001?
+  expected_answer: The Price Match Policy -- eligibility, process, repeated-request flagging, and refund
+    of the difference.
+  relevant_docs:
+  - title: Price Match Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: Price Match Policy
+    version: '1.0'
+    section: null
+    text: Policy ID:** PM-POL-001
+  answerable: true
+  difficulty: medium
+  tags:
+  - identifier
+  - price_match
+- id: exact_identifier-18
+  category: exact_identifier
+  question: What is policy PROMO-POL-001?
+  expected_answer: The Summer BOGO Campaign Brief -- the "buy one, get one 50% off" promotion's mechanics,
+    eligible categories, and return handling.
+  relevant_docs:
+  - title: Campaign Brief — BOGO
+    version: null
+  relevant_chunks:
+  - title: Campaign Brief — BOGO
+    version: null
+    section: null
+    text: 'Policy ID: PROMO-POL-001'
+  answerable: true
+  difficulty: medium
+  tags:
+  - identifier
+  - promotions
+- id: exact_identifier-19
+  category: exact_identifier
+  question: What is policy PROMO-POL-003?
+  expected_answer: The Markdown Policy -- the markdown cadence, clearance tagging, markdown reversal,
+    and seasonal markdown schedule.
+  relevant_docs:
+  - title: Markdown Policy
+    version: null
+  relevant_chunks:
+  - title: Markdown Policy
+    version: null
+    section: null
+    text: 'Policy ID: PROMO-POL-003'
+  answerable: true
+  difficulty: medium
+  tags:
+  - identifier
+  - promotions
+- id: exact_identifier-20
+  category: exact_identifier
+  question: What is SOP-OPEN-002?
+  expected_answer: The Opening/Closing Checklist -- pre-opening, during-business-hours, pre-closing, and
+    post-closing procedures.
+  relevant_docs:
+  - title: Opening/Closing Checklist
+    version: '1.0'
+  relevant_chunks:
+  - title: Opening/Closing Checklist
+    version: '1.0'
+    section: null
+    text: SOP ID:** SOP-OPEN-002
+  answerable: true
+  difficulty: medium
+  tags:
+  - identifier
+- id: exact_identifier-21
+  category: exact_identifier
+  question: What is SOP-STOCK-005?
+  expected_answer: The Stock Take SOP -- the quarterly periodic full-store inventory count procedure.
+  relevant_docs:
+  - title: Stock Take SOP
+    version: null
+  relevant_chunks:
+  - title: Stock Take SOP
+    version: null
+    section: null
+    text: 'SOP ID: SOP-STOCK-005'
+  answerable: true
+  difficulty: medium
+  tags:
+  - identifier
+  - inventory
+- id: exact_identifier-22
+  category: exact_identifier
+  question: What is policy SHIP-POL-001?
+  expected_answer: The Shipping Policy -- delivery windows, carriers, address changes, shipping-charge
+    refunds, and international shipping.
+  relevant_docs:
+  - title: Shipping Policy
+    version: null
+  relevant_chunks:
+  - title: Shipping Policy
+    version: null
+    section: null
+    text: 'Policy ID: SHIP-POL-001'
+  answerable: true
+  difficulty: medium
+  tags:
+  - identifier
+  - shipping
+- id: exact_identifier-23
+  category: exact_identifier
+  question: What is policy WAR-POL-001?
+  expected_answer: The Warranty Policy -- coverage by category, filing a claim, extended warranty, transfer,
+    and international/online-only purchases.
+  relevant_docs:
+  - title: Warranty Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: Warranty Policy
+    version: '1.0'
+    section: null
+    text: 'Policy ID: WAR-POL-001'
+  answerable: true
+  difficulty: medium
+  tags:
+  - identifier
+  - warranty
+- id: exact_identifier-24
+  category: exact_identifier
+  question: What architecture decision does ADR-001 record?
+  expected_answer: The Order Management System choice -- adopting a commercial OMS platform with a dedicated
+    integration layer, rather than building in-house or extending the POS vendor's order module.
+  relevant_docs:
+  - title: OMS Choice ADR
+    version: null
+  relevant_chunks:
+  - title: OMS Choice ADR
+    version: null
+    section: null
+    text: 'ADR ID: ADR-001'
+  answerable: true
+  difficulty: hard
+  tags:
+  - identifier
+  - architecture
+- id: exact_identifier-25
+  category: exact_identifier
+  question: What architecture decision does ADR-002 record?
+  expected_answer: The Loyalty Platform choice -- building the points ledger in-house on the existing
+    transactional database, rather than adopting a commercial platform or extending the OMS event log.
+  relevant_docs:
+  - title: Loyalty Platform Choice ADR
+    version: null
+  relevant_chunks:
+  - title: Loyalty Platform Choice ADR
+    version: null
+    section: null
+    text: ADR ID ADR-002
+  answerable: true
+  difficulty: hard
+  tags:
+  - identifier
+  - architecture
+  - loyalty
 - id: multi_hop-01
   category: multi_hop
   question: A GOLD_TIER member returns an item they bought partly with points at a 25% clearance discount.
@@ -658,6 +1575,488 @@ questions:
   tags:
   - multi_hop
   - loyalty
+- id: multi_hop-11
+  category: multi_hop
+  question: Under the Summer BOGO campaign, is a loyalty-tier discount applied before or after the BOGO
+    50% discount?
+  expected_answer: The loyalty-tier percentage is applied first, then the BOGO 50% discount is calculated
+    on the resulting post-loyalty price of the lower-priced qualifying item -- this follows the standard
+    stacking order defined in the Discount Stacking Rules.
+  relevant_docs:
+  - title: Campaign Brief — BOGO
+    version: null
+  - title: Discount Stacking Rules
+    version: '1.0'
+  relevant_chunks:
+  - title: Campaign Brief — BOGO
+    version: null
+    section: null
+    text: Stacking with Loyalty Discounts
+  - title: Discount Stacking Rules
+    version: '1.0'
+    section: 2. Stacking Order
+    text: null
+  answerable: true
+  difficulty: hard
+  tags:
+  - multi_hop
+  - promotions
+  - loyalty
+- id: multi_hop-12
+  category: multi_hop
+  question: Does a clearance-tagged item that falls within the 14-day discounted-item return window qualify
+    for a same-item size exchange?
+  expected_answer: Yes -- this exception was added in Returns Exception Matrix v2.0 specifically for items
+    tagged clearance under the Markdown Policy that fall within Returns Policy Section 3.2's shortened
+    window.
+  relevant_docs:
+  - title: Markdown Policy
+    version: null
+  - title: Returns Exception Matrix
+    version: '2.0'
+  relevant_chunks:
+  - title: Markdown Policy
+    version: null
+    section: null
+    text: Clearance Tagging
+  - title: Returns Exception Matrix
+    version: '2.0'
+    section: '3. New in This Version: Clearance-Tagged Item Exception'
+    text: null
+  answerable: true
+  difficulty: hard
+  tags:
+  - multi_hop
+  - returns
+  - promotions
+- id: multi_hop-13
+  category: multi_hop
+  question: An employee buys a clearance-tagged item using their staff discount. Does the discount apply
+    on top of the clearance price, and is the combination subject to the customer-facing 50% combined-discount
+    cap?
+  expected_answer: Yes, the employee discount stacks with the already-marked-down clearance price, and
+    no, it is not subject to the Discount Stacking Rules' 50% cap -- the employee discount is a staff
+    benefit, not a customer promotion, and the two policies deliberately don't cross-apply.
+  relevant_docs:
+  - title: Markdown Policy
+    version: null
+  - title: Employee Discount Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: Markdown Policy
+    version: null
+    section: null
+    text: Employee Discount Interaction
+  - title: Employee Discount Policy
+    version: '1.0'
+    section: 3. Interaction with Markdown/Clearance Pricing
+    text: null
+  answerable: true
+  difficulty: hard
+  tags:
+  - multi_hop
+  - staff
+  - promotions
+- id: multi_hop-14
+  category: multi_hop
+  question: A stock-take zone shows a variance over 5%. What does the store manager need to review, and
+    why?
+  expected_answer: The zone's recent transaction log for the same window covered by the Cash Handling
+    SOP's discrepancy thresholds -- a large inventory variance and a cash variance in the same period
+    often share a root cause, most commonly a miscoded return or an unlogged damage write-off.
+  relevant_docs:
+  - title: Stock Take SOP
+    version: null
+  - title: Cash Handling SOP
+    version: '1.0'
+  relevant_chunks:
+  - title: Stock Take SOP
+    version: null
+    section: null
+    text: over 5% requires
+  - title: Cash Handling SOP
+    version: '1.0'
+    section: 5. Closing Count and Discrepancy Reporting
+    text: null
+  answerable: true
+  difficulty: hard
+  tags:
+  - multi_hop
+  - inventory
+  - cash_handling
+- id: multi_hop-15
+  category: multi_hop
+  question: A customer purchased an item online and shipped to an address outside the country of sale.
+    If they need a warranty service return, who pays the return shipping cost?
+  expected_answer: The customer -- unlike domestic warranty service where the store covers return shipping
+    for an approved claim, an international online purchase returned for warranty service is the customer's
+    shipping responsibility.
+  relevant_docs:
+  - title: Warranty Policy
+    version: '1.0'
+  - title: Shipping Policy
+    version: null
+  relevant_chunks:
+  - title: Warranty Policy
+    version: '1.0'
+    section: null
+    text: International and Online-Only
+  - title: Shipping Policy
+    version: null
+    section: null
+    text: International orders are subject
+  answerable: true
+  difficulty: hard
+  tags:
+  - multi_hop
+  - warranty
+  - shipping
+- id: multi_hop-16
+  category: multi_hop
+  question: Can a non-keyholder employee cover an opening shift through a shift-swap request?
+  expected_answer: No -- shift swaps require both employees to be qualified for the role, and only keyholders
+    may cover opening/closing shifts, per the Opening/Closing Checklist's individual-code requirement.
+  relevant_docs:
+  - title: Shift Policy
+    version: '1.0'
+  - title: Opening/Closing Checklist
+    version: '1.0'
+  relevant_chunks:
+  - title: Shift Policy
+    version: '1.0'
+    section: 1. Scheduling
+    text: null
+  - title: Opening/Closing Checklist
+    version: '1.0'
+    section: 1. Pre-Opening (before doors unlock)
+    text: null
+  answerable: true
+  difficulty: hard
+  tags:
+  - multi_hop
+  - staff
+- id: multi_hop-17
+  category: multi_hop
+  question: An employee goes on unpaid personal leave for 70 days. What happens to their personal loyalty
+    account?
+  expected_answer: It is treated as any other inactive account under the standard 24-month inactivity
+    rule -- employment status does not exempt an account, and extended leave alone does not reset that
+    clock.
+  relevant_docs:
+  - title: Leave Policy
+    version: '1.0'
+  - title: Points Expiry Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: Leave Policy
+    version: '1.0'
+    section: 7. Leave and Loyalty Program Interaction
+    text: null
+  - title: Points Expiry Policy
+    version: '1.0'
+    section: 3. Account Inactivity
+    text: null
+  answerable: true
+  difficulty: hard
+  tags:
+  - multi_hop
+  - staff
+  - loyalty
+- id: multi_hop-18
+  category: multi_hop
+  question: Why wasn't the loyalty points ledger folded into the Order Management System's own event log
+    instead of staying a separate system?
+  expected_answer: It was rejected specifically because keeping loyalty state as a single source of truth
+    queried by the OMS, rather than replicated into it, avoids the class of consistency bug that caused
+    the loyalty double-credit incident -- extending the OMS event log to carry loyalty state directly
+    would have reintroduced that exact risk.
+  relevant_docs:
+  - title: Loyalty Platform Choice ADR
+    version: null
+  - title: OMS Choice ADR
+    version: null
+  relevant_chunks:
+  - title: Loyalty Platform Choice ADR
+    version: null
+    section: null
+    text: Second, against extending the OMS event log
+  - title: OMS Choice ADR
+    version: null
+    section: null
+    text: loyalty point balances remain authoritative
+  answerable: true
+  difficulty: hard
+  tags:
+  - multi_hop
+  - architecture
+  - loyalty
+- id: multi_hop-19
+  category: multi_hop
+  question: What do the Inventory Sync Failure and Payment Gateway Failure incidents have in common in
+    terms of root-cause pattern?
+  expected_answer: Both trace back to an external system change made without advance notice to the team
+    depending on that system's stable interface -- a POS export schema change in one case, an uncommunicated
+    TLS certificate rotation in the other.
+  relevant_docs:
+  - title: Inventory Sync Failure Postmortem
+    version: null
+  - title: Payment Gateway Failure Postmortem
+    version: null
+  relevant_chunks:
+  - title: Inventory Sync Failure Postmortem
+    version: null
+    section: null
+    text: similar in spirit to the certificate rotation
+  - title: Payment Gateway Failure Postmortem
+    version: null
+    section: null
+    text: not communicated to the integration team
+  answerable: true
+  difficulty: hard
+  tags:
+  - multi_hop
+  - incidents
+- id: multi_hop-20
+  category: multi_hop
+  question: A customer wants a second price match on the same item after an even lower price appeared
+    following their first match. What's their recourse?
+  expected_answer: A second match on the same item is not permitted -- their recourse is the standard
+    return window under the Returns Policy, followed by a new purchase at the lower price if it's still
+    available.
+  relevant_docs:
+  - title: Price Match Policy
+    version: '1.0'
+  - title: Returns Policy
+    version: '3.0'
+  relevant_chunks:
+  - title: Price Match Policy
+    version: '1.0'
+    section: 6. One Match Per Item
+    text: null
+  - title: Returns Policy
+    version: '3.0'
+    section: 1. Standard Return Window
+    text: null
+  answerable: true
+  difficulty: hard
+  tags:
+  - multi_hop
+  - price_match
+  - returns
+- id: multi_hop-21
+  category: multi_hop
+  question: A chargeback is filed for a transaction where a refund had already been issued through the
+    Failed Refund Runbook's recovery process. Is this a strong or weak case for the store to dispute?
+  expected_answer: A strong case -- a chargeback filed after a refund was already processed, whether through
+    normal Returns Policy channels or the Failed Refund Runbook's recovery path, means the customer has
+    effectively attempted to be refunded twice.
+  relevant_docs:
+  - title: Chargeback Handling Runbook
+    version: null
+  - title: Failed Refund Runbook
+    version: '1.0'
+  relevant_chunks:
+  - title: Chargeback Handling Runbook
+    version: null
+    section: null
+    text: Refund already issued via RET-POL-001
+  - title: Failed Refund Runbook
+    version: '1.0'
+    section: null
+    text: Use this runbook when a refund has been approved
+  answerable: true
+  difficulty: hard
+  tags:
+  - multi_hop
+  - chargebacks
+  - refunds
+- id: multi_hop-22
+  category: multi_hop
+  question: Why don't gift card balances expire the way loyalty points do?
+  expected_answer: Because the two are legally and operationally distinct instruments -- a gift card represents
+    pre-paid store credit, while loyalty points represent an earned, non-purchased reward that's designed
+    to expire on a rolling basis.
+  relevant_docs:
+  - title: Gift Card Terms
+    version: '1.0'
+  - title: Points Expiry Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: Gift Card Terms
+    version: '1.0'
+    section: 2. Balance and Expiry
+    text: null
+  - title: Points Expiry Policy
+    version: '1.0'
+    section: 1. Standard Expiry
+    text: null
+  answerable: true
+  difficulty: medium
+  tags:
+  - multi_hop
+  - gift_cards
+  - loyalty
+- id: multi_hop-23
+  category: multi_hop
+  question: If an employee returns an item they bought using their staff discount, is the refund calculated
+    on the discounted price or the original tag price?
+  expected_answer: The discounted price actually paid, not the original tag price -- consistent with how
+    any promotional-price return is handled, though the return window itself still follows the standard
+    Returns Policy windows.
+  relevant_docs:
+  - title: Employee Discount Policy
+    version: '1.0'
+  - title: Returns Policy
+    version: '3.0'
+  relevant_chunks:
+  - title: Employee Discount Policy
+    version: '1.0'
+    section: 5. Returns on Employee-Discounted Purchases
+    text: null
+  - title: Returns Policy
+    version: '3.0'
+    section: 1. Standard Return Window
+    text: null
+  answerable: true
+  difficulty: hard
+  tags:
+  - multi_hop
+  - staff
+  - returns
+- id: multi_hop-24
+  category: multi_hop
+  question: Can a customer apply a coupon code to a clearance-tagged item?
+  expected_answer: No -- clearance-tagged items can accept a loyalty-tier percentage but not a coupon
+    code; if one is entered, it's silently ignored for that line item rather than rejecting the whole
+    order.
+  relevant_docs:
+  - title: Discount Stacking Rules
+    version: '1.0'
+  - title: Markdown Policy
+    version: null
+  relevant_chunks:
+  - title: Discount Stacking Rules
+    version: '1.0'
+    section: 4. Exclusions from Stacking
+    text: null
+  - title: Markdown Policy
+    version: null
+    section: null
+    text: Clearance Tagging
+  answerable: true
+  difficulty: hard
+  tags:
+  - multi_hop
+  - promotions
+- id: multi_hop-25
+  category: multi_hop
+  question: An online order's shipping address is changed after the order has already entered picking
+    status. How is the original charge handled?
+  expected_answer: The order must be canceled and re-placed -- the original charge is refunded per standard
+    Returns Policy processing times, once the original shipment is confirmed returned to the fulfillment
+    center by the carrier.
+  relevant_docs:
+  - title: Shipping Policy
+    version: null
+  - title: Returns Policy
+    version: '3.0'
+  relevant_chunks:
+  - title: Shipping Policy
+    version: null
+    section: null
+    text: After picking has begun
+  - title: Returns Policy
+    version: '3.0'
+    section: 4. Refund Method
+    text: null
+  answerable: true
+  difficulty: hard
+  tags:
+  - multi_hop
+  - shipping
+  - returns
+- id: multi_hop-26
+  category: multi_hop
+  question: A package's tracking shows delivery to an address that doesn't match the order. Is this processed
+    as a return under the Returns Policy?
+  expected_answer: No -- this is treated as carrier error, not a return. A replacement ships immediately
+    at no cost and the original charge is left untouched, since no return of goods is possible or expected
+    from the customer in this scenario.
+  relevant_docs:
+  - title: Delivery Dispute Runbook
+    version: null
+  - title: Returns Policy
+    version: '3.0'
+  relevant_chunks:
+  - title: Delivery Dispute Runbook
+    version: null
+    section: null
+    text: Misdelivered Package Cases
+  - title: Returns Policy
+    version: '3.0'
+    section: 2. Non-Returnable Items
+    text: null
+  answerable: true
+  difficulty: hard
+  tags:
+  - multi_hop
+  - shipping
+  - returns
+- id: multi_hop-27
+  category: multi_hop
+  question: A points-expiry-eligible customer's points were set to expire during the POS Outage window
+    and they couldn't redeem them in time. What can they do?
+  expected_answer: Contact support within 30 days of the outage -- the affected points are eligible for
+    reinstatement with a fresh 90-day expiry window, since this incident is the specific case the Points
+    Expiry Policy's store-closure/outage provision was written to cover.
+  relevant_docs:
+  - title: POS Outage Postmortem
+    version: null
+  - title: Points Expiry Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: POS Outage Postmortem
+    version: null
+    section: null
+    text: Interaction with Points Expiry
+  - title: Points Expiry Policy
+    version: '1.0'
+    section: 4. Store Closures and System Outages
+    text: null
+  answerable: true
+  difficulty: hard
+  tags:
+  - multi_hop
+  - incidents
+  - loyalty
+- id: multi_hop-28
+  category: multi_hop
+  question: After the loyalty points double-credit incident, what specific corrective action followed
+    directly from the decision to build the ledger in-house rather than adopt a commercial platform?
+  expected_answer: The ledger-level uniqueness constraint added as a second line of defense, independent
+    of the application-level idempotency logic -- a commercial platform's internal correctness guarantees
+    would not have been the team's problem to solve, whereas building in-house made it exactly that.
+  relevant_docs:
+  - title: Loyalty Platform Choice ADR
+    version: null
+  - title: Loyalty Double-Credit Postmortem
+    version: null
+  relevant_chunks:
+  - title: Loyalty Platform Choice ADR
+    version: null
+    section: null
+    text: 'Consequences: the team owns the full correctness burden'
+  - title: Loyalty Double-Credit Postmortem
+    version: null
+    section: null
+    text: ledger-level uniqueness constraint
+  answerable: true
+  difficulty: hard
+  tags:
+  - multi_hop
+  - architecture
+  - incidents
+  - loyalty
 - id: unanswerable-01
   category: unanswerable
   question: What is the store's policy on accepting cryptocurrency as a payment method?
@@ -745,6 +2144,180 @@ questions:
   tags:
   - unanswerable
   - price_match
+- id: unanswerable-09
+  category: unanswerable
+  question: Is there a free-shipping threshold for Standard delivery?
+  expected_answer: null
+  relevant_docs: []
+  relevant_chunks: []
+  answerable: false
+  difficulty: medium
+  tags:
+  - unanswerable
+  - shipping
+- id: unanswerable-10
+  category: unanswerable
+  question: Does the store offer a layaway program?
+  expected_answer: null
+  relevant_docs: []
+  relevant_chunks: []
+  answerable: false
+  difficulty: medium
+  tags:
+  - unanswerable
+- id: unanswerable-11
+  category: unanswerable
+  question: Can customers pre-order an item that's currently out of stock?
+  expected_answer: null
+  relevant_docs: []
+  relevant_chunks: []
+  answerable: false
+  difficulty: medium
+  tags:
+  - unanswerable
+- id: unanswerable-12
+  category: unanswerable
+  question: Are employees eligible for health insurance benefits?
+  expected_answer: null
+  relevant_docs: []
+  relevant_chunks: []
+  answerable: false
+  difficulty: medium
+  tags:
+  - unanswerable
+  - staff
+- id: unanswerable-13
+  category: unanswerable
+  question: Is there an employee dress code policy?
+  expected_answer: null
+  relevant_docs: []
+  relevant_chunks: []
+  answerable: false
+  difficulty: medium
+  tags:
+  - unanswerable
+  - staff
+- id: unanswerable-14
+  category: unanswerable
+  question: What is the process for an employee to request a transfer to a different store location?
+  expected_answer: null
+  relevant_docs: []
+  relevant_chunks: []
+  answerable: false
+  difficulty: medium
+  tags:
+  - unanswerable
+  - staff
+- id: unanswerable-15
+  category: unanswerable
+  question: Does the Warranty Policy cover rental or demo units?
+  expected_answer: null
+  relevant_docs: []
+  relevant_chunks: []
+  answerable: false
+  difficulty: medium
+  tags:
+  - unanswerable
+  - warranty
+- id: unanswerable-16
+  category: unanswerable
+  question: Is there a dedicated process for business-to-business bulk purchase returns?
+  expected_answer: null
+  relevant_docs: []
+  relevant_chunks: []
+  answerable: false
+  difficulty: medium
+  tags:
+  - unanswerable
+  - returns
+- id: unanswerable-17
+  category: unanswerable
+  question: Does the store price-match against its own other store locations?
+  expected_answer: null
+  relevant_docs: []
+  relevant_chunks: []
+  answerable: false
+  difficulty: medium
+  tags:
+  - unanswerable
+  - price_match
+- id: unanswerable-18
+  category: unanswerable
+  question: Is there an annual, rather than rolling 30-day, cap on the number of price-match requests
+    a customer can submit?
+  expected_answer: null
+  relevant_docs: []
+  relevant_chunks: []
+  answerable: false
+  difficulty: medium
+  tags:
+  - unanswerable
+  - price_match
+- id: unanswerable-19
+  category: unanswerable
+  question: Does accrued PTO transfer if an employee moves to a different store location?
+  expected_answer: null
+  relevant_docs: []
+  relevant_chunks: []
+  answerable: false
+  difficulty: medium
+  tags:
+  - unanswerable
+  - staff
+- id: unanswerable-20
+  category: unanswerable
+  question: Are remote or work-from-home shifts permitted under the Shift Policy?
+  expected_answer: null
+  relevant_docs: []
+  relevant_chunks: []
+  answerable: false
+  difficulty: medium
+  tags:
+  - unanswerable
+  - staff
+- id: unanswerable-21
+  category: unanswerable
+  question: Is there a referral bonus program for customers who refer friends?
+  expected_answer: null
+  relevant_docs: []
+  relevant_chunks: []
+  answerable: false
+  difficulty: medium
+  tags:
+  - unanswerable
+- id: unanswerable-22
+  category: unanswerable
+  question: Can a customer get a price adjustment if the store itself lowers the price after their purchase,
+    separate from a competitor price match?
+  expected_answer: null
+  relevant_docs: []
+  relevant_chunks: []
+  answerable: false
+  difficulty: medium
+  tags:
+  - unanswerable
+  - price_match
+- id: unanswerable-23
+  category: unanswerable
+  question: Does the store offer installment or buy-now-pay-later payment plans?
+  expected_answer: null
+  relevant_docs: []
+  relevant_chunks: []
+  answerable: false
+  difficulty: medium
+  tags:
+  - unanswerable
+- id: unanswerable-24
+  category: unanswerable
+  question: What is the minimum age requirement to be hired as an employee?
+  expected_answer: null
+  relevant_docs: []
+  relevant_chunks: []
+  answerable: false
+  difficulty: medium
+  tags:
+  - unanswerable
+  - staff
 - id: ambiguous-01
   category: ambiguous
   question: What's the return window?
@@ -888,6 +2461,306 @@ questions:
   - ambiguous
   - returns
   - staff
+- id: ambiguous-06
+  category: ambiguous
+  question: How much advance notice is required?
+  expected_answer: 'Depends what for: 14 days for a posted schedule, 7 days for a standard PTO request
+    (waived entirely for a genuine emergency), or 7 days before the next schedule posting for a standing
+    availability change -- three unrelated notice requirements.'
+  relevant_docs:
+  - title: Shift Policy
+    version: '1.0'
+  - title: Leave Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: Shift Policy
+    version: '1.0'
+    section: 1. Scheduling
+    text: null
+  - title: Leave Policy
+    version: '1.0'
+    section: 2. PTO Accrual
+    text: null
+  - title: Leave Policy
+    version: '1.0'
+    section: 5. Emergency Leave Exception
+    text: null
+  answerable: true
+  difficulty: hard
+  tags:
+  - ambiguous
+  - staff
+- id: ambiguous-07
+  category: ambiguous
+  question: What is the warranty period?
+  expected_answer: 'Depends on category: 90 days full replacement for general electronics, 2 years parts/1
+    year labor for major appliances, 5 years structural/1 year upholstery for furniture, 1 year full replacement
+    for small kitchen appliances -- all extendable by 1 additional year for 8% of purchase price.'
+  relevant_docs:
+  - title: Warranty Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: Warranty Policy
+    version: '1.0'
+    section: null
+    text: Electronics (general)
+  - title: Warranty Policy
+    version: '1.0'
+    section: null
+    text: Major Appliances
+  - title: Warranty Policy
+    version: '1.0'
+    section: null
+    text: Structural frame
+  answerable: true
+  difficulty: hard
+  tags:
+  - ambiguous
+  - warranty
+- id: ambiguous-08
+  category: ambiguous
+  question: Can I get cash back for a refund?
+  expected_answer: 'Depends on the amount: cash refunds under $75 are paid from the till directly, but
+    cash purchases over $75 are refunded as store credit rather than cash, specifically to reduce till
+    discrepancy risk at close.'
+  relevant_docs:
+  - title: Cash Handling SOP
+    version: '1.0'
+  - title: Returns Policy
+    version: '3.0'
+  relevant_chunks:
+  - title: Cash Handling SOP
+    version: '1.0'
+    section: 4. Refund and Return Cash Handling
+    text: null
+  - title: Returns Policy
+    version: '3.0'
+    section: 4. Refund Method
+    text: null
+  answerable: true
+  difficulty: hard
+  tags:
+  - ambiguous
+  - cash_handling
+  - returns
+- id: ambiguous-09
+  category: ambiguous
+  question: Is it eligible for exchange?
+  expected_answer: 'Depends which item: a clearance-tagged item within the 14-day discounted-item window
+    can be exchanged for a different size/color at associate discretion, while a final-sale item is never
+    eligible for return or exchange under any circumstance an associate can authorize.'
+  relevant_docs:
+  - title: Returns Exception Matrix
+    version: '2.0'
+  - title: Returns Policy
+    version: '3.0'
+  relevant_chunks:
+  - title: Returns Exception Matrix
+    version: '2.0'
+    section: '3. New in This Version: Clearance-Tagged Item Exception'
+    text: null
+  - title: Returns Policy
+    version: '3.0'
+    section: 2. Non-Returnable Items
+    text: null
+  answerable: true
+  difficulty: hard
+  tags:
+  - ambiguous
+  - returns
+- id: ambiguous-10
+  category: ambiguous
+  question: What happens if there's fraud?
+  expected_answer: 'Depends which kind: a gift card can be deactivated and its balance transferred with
+    proof of purchase, a price-match request pattern consistent with abuse is flagged for manual review,
+    and a loyalty account closed due to a fraud investigation forfeits all unredeemed points immediately
+    -- three unrelated fraud-handling procedures.'
+  relevant_docs:
+  - title: Gift Card Terms
+    version: '1.0'
+  - title: Price Match Policy
+    version: '1.0'
+  - title: Points Expiry Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: Gift Card Terms
+    version: '1.0'
+    section: 4. Loss, Theft, and Fraud
+    text: null
+  - title: Price Match Policy
+    version: '1.0'
+    section: 4. Repeated or Suspicious Requests
+    text: null
+  - title: Points Expiry Policy
+    version: '1.0'
+    section: 5. Account Transfers and Closures
+    text: null
+  answerable: true
+  difficulty: hard
+  tags:
+  - ambiguous
+  - gift_cards
+  - price_match
+  - loyalty
+- id: ambiguous-11
+  category: ambiguous
+  question: How is a dispute resolved?
+  expected_answer: 'Depends which kind: a chargeback dispute is filed through the payment processor''s
+    merchant portal with gathered evidence, a delivery dispute is resolved via a carrier trace request,
+    and a price-match dispute comes down to a store associate''s discretion over whether a competitor
+    listing is genuine -- three unrelated processes.'
+  relevant_docs:
+  - title: Chargeback Handling Runbook
+    version: null
+  - title: Delivery Dispute Runbook
+    version: null
+  - title: Price Match Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: Chargeback Handling Runbook
+    version: null
+    section: null
+    text: Filing the Dispute
+  - title: Delivery Dispute Runbook
+    version: null
+    section: null
+    text: file a trace request
+  - title: Price Match Policy
+    version: '1.0'
+    section: 3. Process
+    text: null
+  answerable: true
+  difficulty: hard
+  tags:
+  - ambiguous
+  - chargebacks
+  - shipping
+  - price_match
+- id: ambiguous-12
+  category: ambiguous
+  question: What's required to file a claim?
+  expected_answer: 'Depends which kind: a warranty claim requires a matching product serial number, a
+    chargeback claim requires evidence gathered within 5 business days of the notice, and a price-match
+    request requires proof like a current ad or the competitor''s live product page.'
+  relevant_docs:
+  - title: Warranty Policy
+    version: '1.0'
+  - title: Chargeback Handling Runbook
+    version: null
+  - title: Price Match Policy
+    version: '1.0'
+  relevant_chunks:
+  - title: Warranty Policy
+    version: '1.0'
+    section: null
+    text: requires the product's serial number
+  - title: Chargeback Handling Runbook
+    version: null
+    section: null
+    text: Within 5 business days
+  - title: Price Match Policy
+    version: '1.0'
+    section: 1. Eligibility
+    text: null
+  answerable: true
+  difficulty: hard
+  tags:
+  - ambiguous
+  - warranty
+  - chargebacks
+  - price_match
+- id: ambiguous-13
+  category: ambiguous
+  question: Does it affect tier status?
+  expected_answer: 'Depends on the event: a points refund from a return does not count toward tier-qualifying
+    spend since no new spend occurred, but tier demotion for falling below a threshold only takes effect
+    at the next quarterly review, not immediately -- two different tier-status rules that sound related
+    but aren''t.'
+  relevant_docs:
+  - title: Loyalty Program Rules
+    version: '2.0'
+  relevant_chunks:
+  - title: Loyalty Program Rules
+    version: '2.0'
+    section: 4. Points Handling on Returns
+    text: null
+  - title: Loyalty Program Rules
+    version: '2.0'
+    section: 1. Tier Structure
+    text: null
+  answerable: true
+  difficulty: hard
+  tags:
+  - ambiguous
+  - loyalty
+- id: ambiguous-14
+  category: ambiguous
+  question: What's the replacement process?
+  expected_answer: 'Depends which kind: a warranty replacement is decided by the servicing technician
+    based on parts availability and cost, a misdelivered-package replacement ships immediately at no cost
+    with no investigation required, and a lost gift card replacement requires proof of the original purchase
+    -- three unrelated "replacement" procedures.'
+  relevant_docs:
+  - title: Warranty Policy
+    version: '1.0'
+  - title: Delivery Dispute Runbook
+    version: null
+  - title: Gift Card Terms
+    version: '1.0'
+  relevant_chunks:
+  - title: Warranty Policy
+    version: '1.0'
+    section: null
+    text: Repair vs. Replacement Determination
+  - title: Delivery Dispute Runbook
+    version: null
+    section: null
+    text: Misdelivered Package Cases
+  - title: Gift Card Terms
+    version: '1.0'
+    section: 4. Loss, Theft, and Fraud
+    text: null
+  answerable: true
+  difficulty: hard
+  tags:
+  - ambiguous
+  - warranty
+  - shipping
+  - gift_cards
+- id: ambiguous-15
+  category: ambiguous
+  question: Is the refund issued to the original payment method?
+  expected_answer: 'Depends on how the item was bought: an item purchased with a gift card is refunded
+    to a (possibly new) gift card, never a different method; a price-match difference is always refunded
+    in cash/card, never as points; and the general policy refunds to the original payment method where
+    possible.'
+  relevant_docs:
+  - title: Gift Card Terms
+    version: '1.0'
+  - title: Price Match Policy
+    version: '1.0'
+  - title: Returns Policy
+    version: '3.0'
+  relevant_chunks:
+  - title: Gift Card Terms
+    version: '1.0'
+    section: 5. Returns Involving Gift Cards
+    text: null
+  - title: Price Match Policy
+    version: '1.0'
+    section: 5. Refund of the Difference
+    text: null
+  - title: Returns Policy
+    version: '3.0'
+    section: 4. Refund Method
+    text: null
+  answerable: true
+  difficulty: hard
+  tags:
+  - ambiguous
+  - returns
+  - gift_cards
+  - price_match
 - id: version_sensitive-01
   category: version_sensitive
   question: What is the current GOLD_TIER annual spend threshold?
@@ -963,3 +2836,59 @@ questions:
   tags:
   - version_sensitive
   - returns
+- id: version_sensitive-05
+  category: version_sensitive
+  question: Under the current loyalty program rules, how quickly is the points portion of a return refunded?
+  expected_answer: Within 24 hours under the current Loyalty Program Rules v2.0 -- down from within 5
+    business days under the superseded v1.0.
+  relevant_docs:
+  - title: Loyalty Program Rules
+    version: '2.0'
+  relevant_chunks:
+  - title: Loyalty Program Rules
+    version: '2.0'
+    section: 4. Points Handling on Returns
+    text: null
+  answerable: true
+  difficulty: medium
+  tags:
+  - version_sensitive
+  - loyalty
+- id: version_sensitive-06
+  category: version_sensitive
+  question: Under the current Returns Policy, does a restocking fee apply to an opened electronics item
+    accepted outside the standard return window?
+  expected_answer: No -- the current Returns Policy v3.0's electronics exception doesn't mention a restocking
+    fee at all, unlike the superseded v2.0, which specified a fee of up to 15% at associate discretion.
+  relevant_docs:
+  - title: Returns Policy
+    version: '3.0'
+  relevant_chunks:
+  - title: Returns Policy
+    version: '3.0'
+    section: 3. Exceptions > 3.1 Electronics; 3.2 Discounted Items
+    text: null
+  answerable: true
+  difficulty: medium
+  tags:
+  - version_sensitive
+  - returns
+- id: version_sensitive-07
+  category: version_sensitive
+  question: Under the current loyalty program rules, is a promotional discount applied proportionally
+    when calculating a points refund on an item bought with blended points and card?
+  expected_answer: Yes -- this is an explicit step added in Loyalty Program Rules v2.0 Section 4 that
+    wasn't present under the superseded v1.0's points-handling-on-returns section.
+  relevant_docs:
+  - title: Loyalty Program Rules
+    version: '2.0'
+  relevant_chunks:
+  - title: Loyalty Program Rules
+    version: '2.0'
+    section: 4. Points Handling on Returns
+    text: null
+  answerable: true
+  difficulty: medium
+  tags:
+  - version_sensitive
+  - loyalty

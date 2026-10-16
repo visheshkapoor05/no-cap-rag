@@ -9,8 +9,47 @@ A production-oriented RAG system for retail policy Q&A — hybrid dense+BM25 ret
 A public + synthetic corpus, retrieved with evidence, answered with citations, verified, and abstained from when the evidence doesn't hold up. Built in three shippable tiers: V1 → V2 → V3.
 See [`Project_1_Advanced_RAG_PRD_Architecture.pdf`](./Project_1_Advanced_RAG_PRD_Architecture.pdf)
 for the full plan, [`DECISIONS.md`](./DECISIONS.md) for where the build
-knowingly deviates from it, and [`EVALUATION.md`](./EVALUATION.md) for the
-golden-set methodology and what each metric actually measures.
+knowingly deviates from it, [`ARCHITECTURE.md`](./ARCHITECTURE.md) for the
+pipeline diagram and the reasoning behind it, and [`EVALUATION.md`](./EVALUATION.md)
+for the golden-set methodology and what each metric actually measures.
+
+## Benchmark (V1, real run, 151 questions)
+
+| Config | Recall@5 | MRR | R-Prec | Faithfulness | Correctness | Citation support | P95 latency |
+|---|---|---|---|---|---|---|---|
+| Baseline (dense) | 0.928 | 0.872 | 0.672 | 1.000 | 0.986 | 1.000 | 15.8s |
+| **+ Hybrid (RRF)** | 0.913 | **0.888** | **0.688** | 1.000 | 0.965 | 1.000 | 14.8s |
+| + Reranker | 0.919 | 0.831 | 0.665 | 0.996 | 0.954 | 0.996 | 21.1s |
+
+Hybrid wins on rank-quality metrics; the reranker, as currently
+configured, doesn't — a real, measured result, not a bug (its training
+distribution doesn't transfer to this domain). Full numbers, two
+ablations, and the reasoning: [`evals/results/M4_benchmark.md`](./evals/results/M4_benchmark.md).
+Three real failures found and analyzed, one fixed with before/after
+numbers: [`evals/results/M4_failure_analysis.md`](./evals/results/M4_failure_analysis.md).
+Judge-vs-hand-score agreement (90%, 18/20): [`evals/results/M4_handscore_agreement.md`](./evals/results/M4_handscore_agreement.md).
+
+## Limitations (stated now, not discovered later)
+
+- **Judge self-preference risk, named but not structurally eliminated.**
+  The LLM judge is the same model family as the generator it scores.
+  T-M4.15's hand-scoring is the actual test of whether this shows up in
+  practice (it mostly didn't — 90% agreement), not an assumption that
+  rubric wording fixes it.
+- **Reranker underperforms on this corpus as currently configured.**
+  See the benchmark table above — don't enable it by default without
+  re-measuring after domain-specific fine-tuning.
+- **Retrieval breadth vs. multi-context ambiguous questions.** A
+  question whose correct answer spans 2-3 unrelated source documents can
+  lose some of those contexts to the top-K window — query-specific, not
+  categorically fixed by raising K. See Failure 2 in the failure
+  analysis.
+- **Public corpus has zero golden-set coverage.** All 151 questions
+  reference the `synthetic/` half; the 16 real `public/` documents were
+  ingested but never used to author evaluation questions.
+- **Claim verification and abstention-on-low-confidence (V2 scope) don't
+  exist yet.** Generation currently trusts its own citation-grounding;
+  nothing re-checks a claim against its cited chunk after the fact.
 
 Every module in this repo plays a role in one running analogy — an internal
 company research-and-answers office. See [ANALOGY.md](./ANALOGY.md) for the
@@ -47,6 +86,18 @@ confirming M2's structure-aware call under the retrieval method that
 actually ships: [`evals/results/M3_retrieval.md`](./evals/results/M3_retrieval.md).
 Reranking, generation, and claim verification don't exist yet — those start
 at M4+.
+
+**M4 — Reranking, Citation-Grounded Generation & Baseline Eval: done, on
+`feat/m4-reranking-citations-eval`.** Cross-encoder reranking
+(`app/reranking/`), an `LLMProvider` abstraction + Gemini adapter
+(`app/generation/gemini.py`), citation-grounded structured generation
+(`app/generation/generate.py`, bracket-number citations resolved back to
+real chunks), a fixed/versioned LLM judge (`app/evaluation/judge.py`,
+`judge_rubric_v2`), experiment persistence (`app/evaluation/experiment.py`),
+`POST /query` / `POST /evaluate` / `GET,POST /experiments`
+(`app/api/query.py`, `app/api/experiments.py`), the golden set expanded
+50 → 151 questions, and the full benchmark ladder — see **Benchmark**
+below and [`EVALUATION.md`](./EVALUATION.md) for the complete M4 methodology.
 
 ## Quick start
 
@@ -98,6 +149,49 @@ above; CI brings up the same stack from clean, see `.github/workflows/ci.yml`):
 pytest -v
 ```
 
+## API examples
+
+Ask a question, get a cited, structured answer (retrieve → rerank →
+build context → generate, all composed by `POST /query`):
+
+```bash
+curl -s http://127.0.0.1:8000/query -X POST -H 'Content-Type: application/json' -d '{
+  "question": "How long is the full-replacement warranty on general electronics?"
+}' | python3 -m json.tool
+```
+
+```json
+{
+  "trace_id": "...",
+  "question": "How long is the full-replacement warranty on general electronics?",
+  "answerable": true,
+  "summary": "The full replacement warranty for general electronics is 90 days, starting from the date of purchase [1].",
+  "claims": [
+    {
+      "statement": "The full replacement warranty for general electronics lasts for 90 days.",
+      "citations": [{"number": 1, "chunk_id": "...", "document_title": "Warranty Policy", "document_version": "1.0", "section_path": "1"}]
+    }
+  ],
+  "timings_ms": {"retrieval_ms": 142.3, "rerank_ms": 38.1, "context_ms": 0.9, "generate_ms": 2104.7, "total_ms": 2286.0}
+}
+```
+
+Same thing, plus a judge score against a reference answer
+(`POST /evaluate`):
+
+```bash
+curl -s http://127.0.0.1:8000/evaluate -X POST -H 'Content-Type: application/json' -d '{
+  "question": "How long is the full-replacement warranty on general electronics?",
+  "expected_answer": "90 days from the date of purchase."
+}'
+```
+
+Every benchmark run persists one row per config
+(`GET /experiments/{id}`, `POST /experiments/compare`) — `config`,
+`dataset_version`, and every model version are stored alongside the
+metrics, so "which embedding model produced this Recall@5" is never
+unrecoverable after the fact.
+
 ## Layout
 
 ```
@@ -115,6 +209,8 @@ app/
     health.py           — /health
     documents.py          — POST /documents/ingest, GET /documents/{id}
     retrieve.py             — POST /retrieve (dense/bm25/hybrid_rrf/hybrid_weighted, T-M3.11)
+    query.py                 — POST /query, POST /evaluate (T-M4.12)
+    experiments.py              — GET /experiments/{id}, POST /experiments/compare (T-M4.12)
   ingestion/
     source.py             — the Source interface + RawDocument + FetchStatus
     url_source.py           — fetches a public URL
@@ -137,19 +233,34 @@ app/
     dense.py                           — DenseRetriever (T-M3.8)
     sparse.py                           — SparseRetriever, real BM25 (T-M3.9)
     fusion.py                            — RRFFusion + WeightedFusion (T-M3.10)
+  reranking/
+    reranker.py                          — CrossEncoderReranker, ms-marco-MiniLM (T-M4.5)
+  generation/
+    provider.py                          — LLMProvider protocol (T-M4.7)
+    gemini.py                            — Gemini generation adapter, retry+timeout (T-M4.7)
+    context_builder.py                   — dedupe, token budget, citation numbering + version (T-M4.6/T-M4.16)
+    schema.py                            — GeneratedAnswer / Claim (T-M4.8)
+    generate.py                          — citation-grounded generation + repair pass (T-M4.8)
   evaluation/
-    metrics.py                           — hand-written Recall@K / MRR (T-M2.8)
+    metrics.py                           — Recall@K/MRR (T-M2.8) + R-Precision/NDCG (T-M4.9)
+    judge.py                             — LLM judge, judge_rubric_v2 (T-M4.10/T-M4.16)
+    experiment.py                        — experiment persistence (T-M4.11)
 migrations/
   0001_create_documents_table.sql
   0002_create_chunks_table.sql
+  0003_create_experiments_table.sql
 corpus/
   MANIFEST.md          — every source, its licence status, and fetch outcome
   synthetic/            — 28 fictional documents (see Corpus below)
   public/                — 16 real retailer policy pages (see Corpus below)
 evals/
-  golden_set/            — 50-question golden set + loader/resolver (see EVALUATION.md)
-  results/                — dated, diffable Recall@K/MRR results per milestone
+  golden_set/            — 151-question golden set + loader/resolver (see EVALUATION.md)
+  results/                — dated, diffable results per milestone (M3_retrieval.md, M4_benchmark.md, M4_failure_analysis.md, M4_handscore_agreement.md)
   run_m3_experiment.py     — the real T-M3.12 experiment (4 configs x 50 questions)
+  run_m4_experiment.py      — the real T-M4.14 benchmark ladder (3 configs x 151/36 questions)
+  experiment_e_contextual_prefix.py — T-M4.14 Experiment E
+  experiment_f_context_builder_ablation.py — T-M4.14 Experiment F
+  capture_handscore_sample.py        — T-M4.15's 20-question capture
 tests/
   conftest.py            — shared fixtures (TestClient, real-Postgres pool + cleanup)
   test_*.py
