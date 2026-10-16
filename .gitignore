@@ -231,3 +231,8 @@ evals/results/m3_experiment_raw.json
 # evals/run_m4_experiment.py; evals/results/M4_benchmark.md is the committed
 # summary that matters.
 evals/results/m4_experiment_raw.json
+
+# T-M4.15: raw per-question hand-score capture -- regenerable by re-running
+# evals/capture_handscore_sample.py; evals/results/M4_handscore_agreement.md
+# is the committed summary that matters.
+evals/results/m4_handscore_sample.json
