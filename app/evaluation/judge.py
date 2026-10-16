@@ -22,7 +22,11 @@ from app.generation.context_builder import BuiltContext
 from app.generation.provider import LLMProvider
 from app.generation.schema import GeneratedAnswer
 
-RUBRIC_VERSION = "judge_rubric_v1"
+# v2: T-M4.16 fix -- v1 accepted an unanswerable=true premise at face
+# value; T-M4.15's hand-scoring found a real case (version_sensitive-05)
+# where that let a wrongful abstention score as correct. v2 requires the
+# judge to check the premise against the context's own version markers.
+RUBRIC_VERSION = "judge_rubric_v2"
 
 JUDGE_SYSTEM_PROMPT = f"""You are an impartial evaluator ({RUBRIC_VERSION}) scoring a RAG system's \
 generated answer against the context it was given and, if provided, a reference answer. Score three \
@@ -47,9 +51,17 @@ shorter one that says the same true thing.
 - Self-preference: you are evaluating text, not judging whether it "sounds like" a good answer from a \
 model like yourself -- check each claim against the literal context text, nothing else.
 
-If the answer declares itself unanswerable (answerable=false) and the context genuinely does not support \
-an answer, that is a CORRECT response -- score correctness 1.0, faithfulness 1.0 (there are no claims to \
-be unfaithful), citation_support_rate 1.0 (vacuously -- zero claims, zero unsupported claims)."""
+If the answer declares itself unanswerable (answerable=false), do NOT accept that premise at face value -- \
+check it yourself against the context before scoring. T-M4.15's hand-scoring found a real case where two \
+context chunks genuinely disagreed, but both carried distinguishable version numbers (one older, one \
+current); the correct behavior was to answer from the current version, not abstain, and a judge that \
+doesn't check the chunks' own version labels will score that wrongful abstention as correct. Score \
+correctness 1.0 for an abstention ONLY if you can confirm the context truly lacks a way to resolve the \
+question -- e.g. the conflicting chunks carry no version markers at all, or carry the same version. If the \
+chunks disagree but one carries a visibly higher version number, the abstention is INCORRECT (score \
+correctness 0.0) -- the system should have answered from the higher version. When abstention is genuinely \
+correct: score correctness 1.0, faithfulness 1.0 (there are no claims to be unfaithful), \
+citation_support_rate 1.0 (vacuously -- zero claims, zero unsupported claims)."""
 
 _PROMPT_TEMPLATE = """Question: {question}
 

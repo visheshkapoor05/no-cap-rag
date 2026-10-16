@@ -12,6 +12,15 @@ context has to fit a real token budget, not "all of it". (3) every chunk
 that survives both of those has to keep a stable, traceable ID so a
 citation in the generated answer can be resolved back to a real chunk, not
 just a position in a list that changes next request.
+
+T-M4.16 failure case #1: dedup catches an *identical* superseded chunk,
+but a superseded document can also contain a chunk that's genuinely
+*different* text from its replacement (a changed number, a changed rule)
+-- not caught by dedup, and not resolvable at all if the version that
+produced it never reaches the prompt. The document's version is now part
+of the citation block specifically so the model (and the judge) can tell
+"these two candidate chunks disagree" apart from "these two candidate
+chunks disagree, and this one is current."
 """
 from __future__ import annotations
 
@@ -32,6 +41,7 @@ class ContextSource:
 
     chunk_id: str
     document_title: str
+    document_version: str | None
     section_path: str
     text: str
 
@@ -41,6 +51,7 @@ class Citation:
     number: int
     chunk_id: str
     document_title: str
+    document_version: str | None
     section_path: str
 
 
@@ -103,7 +114,8 @@ def build_context(
     dropped_for_budget = 0
 
     for source in deduped:
-        block = f"[{len(citations) + 1}] {source.document_title} → §{source.section_path}: {source.text}"
+        title = f"{source.document_title} {source.document_version}" if source.document_version else source.document_title
+        block = f"[{len(citations) + 1}] {title} → §{source.section_path}: {source.text}"
         block_tokens = len(_ENC.encode(block))
         if used_tokens + block_tokens > max_tokens:
             dropped_for_budget += len(deduped) - len(citations)
@@ -113,6 +125,7 @@ def build_context(
                 number=len(citations) + 1,
                 chunk_id=source.chunk_id,
                 document_title=source.document_title,
+                document_version=source.document_version,
                 section_path=source.section_path,
             )
         )

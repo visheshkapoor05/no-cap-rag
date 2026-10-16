@@ -13,12 +13,14 @@ def _context():
             ContextSource(
                 chunk_id="c1",
                 document_title="Returns Policy",
+                document_version=None,
                 section_path="1",
                 text="General items may be returned within 30 days of purchase with a receipt.",
             ),
             ContextSource(
                 chunk_id="c2",
                 document_title="Returns Policy",
+                document_version=None,
                 section_path="3.2",
                 text="Clearance items marked final sale cannot be returned or exchanged.",
             ),

@@ -40,6 +40,7 @@ class CitationResponse(BaseModel):
     number: int
     chunk_id: str
     document_title: str
+    document_version: str | None
     section_path: str
 
 
@@ -89,7 +90,10 @@ def _run_query(request: QueryRequest) -> tuple[QueryResponse, GeneratedAnswer, B
 
     t0 = time.perf_counter()
     sources = [
-        ContextSource(chunk_id=c.chunk_id, document_title=c.document_title, section_path=c.section_path, text=c.text)
+        ContextSource(
+            chunk_id=c.chunk_id, document_title=c.document_title, document_version=c.document_version,
+            section_path=c.section_path, text=c.text,
+        )
         for c in candidates
     ]
     context = build_context(sources, max_tokens=request.max_context_tokens)
@@ -112,7 +116,8 @@ def _run_query(request: QueryRequest) -> tuple[QueryResponse, GeneratedAnswer, B
                 statement=claim.statement,
                 citations=[
                     CitationResponse(
-                        number=c.number, chunk_id=c.chunk_id, document_title=c.document_title, section_path=c.section_path
+                        number=c.number, chunk_id=c.chunk_id, document_title=c.document_title,
+                        document_version=c.document_version, section_path=c.section_path,
                     )
                     for c in claim.citations
                 ],

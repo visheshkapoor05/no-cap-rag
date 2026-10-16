@@ -3,8 +3,10 @@ behavior -- pure functions, no real infra needed."""
 from app.generation.context_builder import ContextSource, build_context
 
 
-def _source(chunk_id: str, text: str, title: str = "Returns Policy", section: str = "3. Exceptions") -> ContextSource:
-    return ContextSource(chunk_id=chunk_id, document_title=title, section_path=section, text=text)
+def _source(
+    chunk_id: str, text: str, title: str = "Returns Policy", section: str = "3. Exceptions", version: str | None = None
+) -> ContextSource:
+    return ContextSource(chunk_id=chunk_id, document_title=title, document_version=version, section_path=section, text=text)
 
 
 def test_keeps_all_chunks_and_numbers_citations_in_rank_order_when_nothing_overflows():
@@ -66,6 +68,22 @@ def test_budget_never_reorders_a_lower_ranked_smaller_chunk_ahead_of_a_higher_ra
     result = build_context(sources, max_tokens=50)
     ids = [c.chunk_id for c in result.citations]
     assert "third_tiny" not in ids  # never promoted past the chunk that didn't fit, even though it would fit alone
+
+
+def test_citation_block_includes_document_version_when_known():
+    """T-M4.16 failure case #1 fix: version_sensitive-05/-06 both failed
+    because the context block never told the model which chunk was
+    current. The version now has to actually appear in the rendered
+    block, or the model has no way to resolve a version conflict."""
+    result = build_context([_source("a", "90 days.", title="Returns Policy", version="v3.0")], max_tokens=4000)
+    assert "Returns Policy v3.0" in result.context
+    assert result.citations[0].document_version == "v3.0"
+
+
+def test_citation_block_omits_version_when_none():
+    result = build_context([_source("a", "90 days.", title="Returns Policy", version=None)], max_tokens=4000)
+    assert "Returns Policy →" in result.context
+    assert result.citations[0].document_version is None
 
 
 def test_empty_sources_returns_empty_context():

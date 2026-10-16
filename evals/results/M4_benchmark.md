@@ -97,10 +97,15 @@ token-budget overflow become real, not hypothetical.
 - **Hybrid improves MRR and R-Precision over dense-only** (0.872→0.888,
   0.672→0.688) but costs a little Recall@5 (0.928→0.913) — consistent with
   M3's finding that RRF reorders ranks more than it changes the top-5 set.
-- **The reranker underperforms both on every retrieval metric in this run**
-  (Recall@5 0.919, MRR 0.831, R-Precision 0.665 — all below hybrid, MRR and
-  R-Precision below dense-only too). That is a genuine, measured result,
-  not a bug: it only reranks the hybrid candidate set it's handed (same
+- **The reranker underperforms on the metrics that matter most for rank
+  quality.** It edges out hybrid on Recall@5 (0.919 vs. 0.913), but is
+  clearly below hybrid on MRR (0.831 vs. 0.888) and R-Precision (0.665
+  vs. 0.688) — and below dense-only on those same two metrics too. MRR
+  and R-Precision specifically test rank *position*, which is the whole
+  point of adding a reranking stage, so a small Recall@5 gain doesn't
+  offset reordering results to be worse-ranked on average. That is a
+  genuine, measured result, not a bug: it only reranks the hybrid
+  candidate set it's handed (same
   K=10 pool), its training distribution (MS MARCO web passages) doesn't
   match this retail-policy domain, and it has no access to BM25's exact-
   keyword signal that evidently mattered for some of these questions. This

@@ -79,10 +79,11 @@ def _resolve_chunks_batch(pool, chunk_ids: list[str]) -> list[ContextSource]:
         doc_id = record.document_id
         if doc_id not in _DOCUMENT_TITLE_CACHE:
             document = get_document(pool, doc_id)
-            _DOCUMENT_TITLE_CACHE[doc_id] = document.title if document else "(unknown)"
+            _DOCUMENT_TITLE_CACHE[doc_id] = (document.title, document.version) if document else ("(unknown)", None)
+        title, version = _DOCUMENT_TITLE_CACHE[doc_id]
         sources.append(
             ContextSource(
-                chunk_id=chunk_id, document_title=_DOCUMENT_TITLE_CACHE[doc_id],
+                chunk_id=chunk_id, document_title=title, document_version=version,
                 section_path=record.section_path, text=record.text,
             )
         )

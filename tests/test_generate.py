@@ -46,8 +46,8 @@ class FakeProvider:
 def _context():
     return build_context(
         [
-            ContextSource(chunk_id="real-1", document_title="Returns Policy", section_path="1", text="Items may be returned within 30 days."),
-            ContextSource(chunk_id="real-2", document_title="Returns Policy", section_path="3.2", text="Clearance items are final sale."),
+            ContextSource(chunk_id="real-1", document_title="Returns Policy", document_version=None, section_path="1", text="Items may be returned within 30 days."),
+            ContextSource(chunk_id="real-2", document_title="Returns Policy", document_version=None, section_path="3.2", text="Clearance items are final sale."),
         ]
     )
 
@@ -114,7 +114,10 @@ def test_generate_answer_against_the_real_corpus_and_real_gemini():
     assert records, "Returns Policy has no chunks -- run ingest first"
 
     sources = [
-        ContextSource(chunk_id=str(r.id), document_title=document.title, section_path=r.section_path, text=r.text)
+        ContextSource(
+            chunk_id=str(r.id), document_title=document.title, document_version=document.version,
+            section_path=r.section_path, text=r.text,
+        )
         for r in records[:6]
     ]
     context = build_context(sources)
@@ -143,6 +146,7 @@ def test_generate_answer_abstains_when_context_does_not_support_the_question():
         ContextSource(
             chunk_id="unrelated",
             document_title="Opening/Closing Checklist",
+            document_version=None,
             section_path="1",
             text="Unlock the front doors and disarm the alarm system at the start of the shift.",
         )

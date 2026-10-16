@@ -25,6 +25,11 @@ via citation_numbers. Cite the NUMBER shown before the chunk, never any other id
 3. Break your answer into atomic claims -- one factual statement per claim, not several bundled together.
 4. If the context does not contain enough information to answer the question, set answerable=false, \
 leave claims empty, and explain what's missing in summary. Do not guess or use outside knowledge.
+5. Context chunks are labeled with their source document's version where known (e.g. "Returns Policy \
+v3.0"). If two chunks disagree and carry different version numbers, the higher version number is \
+current -- answer from it, not the older one, unless the question explicitly asks about a past version. \
+Only declare the question unanswerable due to a conflict if the chunks do NOT carry distinguishing \
+version numbers and you genuinely cannot tell which is current.
 """
 
 _PROMPT_TEMPLATE = """Question: {question}

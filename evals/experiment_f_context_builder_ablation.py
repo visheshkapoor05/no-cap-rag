@@ -50,10 +50,11 @@ def _resolve_chunks_batch(pool, chunk_ids: list[str]) -> list[ContextSource]:
         doc_id = record.document_id
         if doc_id not in _DOCUMENT_TITLE_CACHE:
             document = get_document(pool, doc_id)
-            _DOCUMENT_TITLE_CACHE[doc_id] = document.title if document else "(unknown)"
+            _DOCUMENT_TITLE_CACHE[doc_id] = (document.title, document.version) if document else ("(unknown)", None)
+        title, version = _DOCUMENT_TITLE_CACHE[doc_id]
         sources.append(
             ContextSource(
-                chunk_id=chunk_id, document_title=_DOCUMENT_TITLE_CACHE[doc_id],
+                chunk_id=chunk_id, document_title=title, document_version=version,
                 section_path=record.section_path, text=record.text,
             )
         )
@@ -70,10 +71,11 @@ def naive_build_context(sources: list[ContextSource]) -> BuiltContext:
     blocks: list[str] = []
     for source in sources:
         n = len(citations) + 1
-        blocks.append(f"[{n}] {source.document_title} → §{source.section_path}: {source.text}")
+        title = f"{source.document_title} {source.document_version}" if source.document_version else source.document_title
+        blocks.append(f"[{n}] {title} → §{source.section_path}: {source.text}")
         citations.append(
             Citation(number=n, chunk_id=source.chunk_id, document_title=source.document_title,
-                      section_path=source.section_path)
+                      document_version=source.document_version, section_path=source.section_path)
         )
     return BuiltContext(context="\n\n".join(blocks), citations=citations, dropped_for_budget=0, deduped_count=0)
 
