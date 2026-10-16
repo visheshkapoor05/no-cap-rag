@@ -1,13 +1,22 @@
 # M4 Benchmark Ladder Results
 
-**T-M4.14.** Real run, real infra, 2026-10-15: 151-question golden set
-(`evals/golden_set/golden_set.yaml`, T-M4.13), 3 configs — baseline dense,
-+hybrid (RRF), +reranker (cross-encoder) — against the real dev Postgres
-(28 documents, 149 chunks), real Milvus, real Gemini (`gemini-2.5-flash`),
-real local cross-encoder (`cross-encoder/ms-marco-MiniLM-L-6-v2`). Script:
-`evals/run_m4_experiment.py`. Raw output: `evals/results/m4_experiment_raw.json`
-(gitignored, regenerable — re-run the script to reproduce). Each config's
-metrics are also persisted as an `experiments` row (T-M4.11) for later
+**T-M4.14.** Real run, real infra, 2026-10-15/16: 151-question golden set
+(`evals/golden_set/golden_set.yaml`, T-M4.13). Three experiments, all
+against the real dev Postgres (28 documents, 149 chunks), real Milvus,
+real Gemini (`gemini-2.5-flash`), real local cross-encoder
+(`cross-encoder/ms-marco-MiniLM-L-6-v2`):
+
+- **Experiment D** — the main ladder: baseline dense, +hybrid (RRF),
+  +reranker. Script: `evals/run_m4_experiment.py`.
+- **Experiment E** — does the contextual prefix (T-M2.5) earn its keep at
+  retrieval time? Script: `evals/experiment_e_contextual_prefix.py`.
+- **Experiment F** — does the context builder's dedup + token-budget
+  logic (T-M4.6) change generation quality versus naive concatenation?
+  Script: `evals/experiment_f_context_builder_ablation.py`.
+
+Raw output: `evals/results/m4_experiment_raw.json` (gitignored,
+regenerable — re-run the scripts to reproduce). Experiment D's per-config
+metrics are also persisted as `experiments` rows (T-M4.11) for later
 comparison via `GET /experiments/{id}` / `POST /experiments/compare`.
 
 Two sample sizes, same economy-of-effort principle as D-013's chunking
@@ -24,7 +33,7 @@ cross-check (documented scope decision, not a silent shortcut):
   unanswerable slice is scored on whether the system correctly abstains,
   not excluded.
 
-## Results
+## Experiment D: the main ladder
 
 | Config | Recall@5 | MRR | R-Prec | Faithfulness | Correctness | Citation support | P95 latency (ms) |
 |---|---|---|---|---|---|---|---|
@@ -34,6 +43,54 @@ cross-check (documented scope decision, not a silent shortcut):
 
 n=127 for the retrieval columns, n=36 for the generation/judge columns, in
 every row.
+
+## Experiment E: contextual-prefix ablation
+
+Same chunk_id space as production (`get_all_chunks()` — no re-chunking),
+hybrid_rrf retrieval, over the same 127 answerable questions. Only the
+embedding/tokenization input changes: `text` alone vs `contextual_prefix +
+text`.
+
+| Variant | Recall@5 | MRR | R-Precision |
+|---|---|---|---|
+| Without prefix | 0.915 | 0.855 | 0.661 |
+| With prefix (production) | 0.913 | 0.888 | 0.688 |
+| **Delta (with − without)** | **−0.001** | **+0.032** | **+0.026** |
+
+The contextual prefix doesn't move Recall@5, but gives a real MRR and
+R-Precision lift — it's not pulling more relevant chunks into the top-10,
+it's ranking them higher once they're there. Consistent with what the
+prefix actually does: add document/section identity to the embedding,
+which should help rank position (is this the *right* chunk among several
+similar ones) more than raw recall (is it retrieved at all).
+
+## Experiment F: context-builder ablation
+
+Fixed to hybrid_rrf retrieval, same 36-question stratified sample as
+Experiment D, comparing the real `build_context()` (exact-text dedup +
+greedy token-budget fill, T-M4.6) against a naive variant that formats
+every retrieved chunk into the same citation-bracket scheme unconditionally
+— no dedup, no budget check.
+
+| Variant | Faithfulness | Correctness | Citation support |
+|---|---|---|---|
+| Naive (no dedup/budget) | 1.000 | 0.964 | 1.000 |
+| Current (dedup + budget) | 1.000 | 0.986 | 1.000 |
+| **Delta (current − naive)** | **+0.000** | **+0.022** | **+0.000** |
+
+Dedup and the token-budget drop fired on **0/36** questions in this
+run — this 28-document, 149-chunk corpus is small enough, and k=5 context
+chunks is narrow enough, that duplicate near-identical chunks and
+budget overflow essentially don't occur on this sample. The +0.022
+correctness delta happened with the dedup/budget *mechanism* never
+actually triggering, so it isn't attributable to either — it's judge/
+generation noise at this sample size (n=36), not evidence the context
+builder improved anything on this run. The honest conclusion: on this
+corpus's current scale, the context builder's dedup and budget logic are
+correctness insurance for a corpus that doesn't yet need it, not a
+measured generation-quality win — their value should reappear as the
+corpus grows past the point where duplicate near-identical chunks and
+token-budget overflow become real, not hypothetical.
 
 ## Reading these numbers
 

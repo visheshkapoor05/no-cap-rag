@@ -4,6 +4,7 @@ app/embeddings/gemini.py's singleton/lifecycle pattern exactly.
 """
 from __future__ import annotations
 
+import httpx
 from google import genai
 from google.genai import errors as genai_errors
 from google.genai import types
@@ -13,14 +14,22 @@ from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponen
 from app.core.config import get_settings
 from app.generation.provider import SchemaT
 
-# Gemini's own SDK already retries transport-level failures; a 503
-# UNAVAILABLE is the API itself returning a valid HTTP response that says
-# "try again later" -- real transient flakiness observed mid-run during
-# T-M4.14's benchmark, not a bug to fix in the request. Retry that specific
-# case with backoff; anything else (4xx, schema problems) should surface
-# immediately rather than being retried blindly.
+# Gemini's own SDK already retries transport-level failures internally; a
+# 503 UNAVAILABLE is the API itself returning a valid HTTP response that
+# says "try again later" -- real transient flakiness observed mid-run
+# during T-M4.14's benchmark, not a bug to fix in the request. The SDK's
+# own internal retry also covers httpx.TimeoutException/ConnectError, but
+# this outer retry catches both as a second layer in case the SDK's
+# retries are exhausted and the exception still surfaces here -- a real
+# request hung with no response at all for hours during T-M4.14's
+# Experiment F (no client-side timeout existed yet to bound the wait;
+# see GeminiLLMProvider.__init__'s http_options=HttpOptions(timeout=...)).
+# Anything else (4xx, schema problems) should surface immediately rather
+# than being retried blindly.
 def _is_transient_server_error(exc: BaseException) -> bool:
-    return isinstance(exc, genai_errors.ServerError) and exc.code in (429, 500, 503, 504)
+    if isinstance(exc, genai_errors.ServerError) and exc.code in (429, 500, 503, 504):
+        return True
+    return isinstance(exc, (httpx.TimeoutException, httpx.ConnectError))
 
 
 _retry_transient = retry(
@@ -53,7 +62,16 @@ class GeminiLLMProvider:
 
     def __init__(self) -> None:
         settings = get_settings()
-        self._client = genai.Client(api_key=settings.gemini.api_key.get_secret_value())
+        # A real request found during T-M4.14's Experiment F hung with no
+        # response at all -- no exception for _retry_transient to catch,
+        # CPU time frozen while elapsed time climbed for hours (same
+        # stall signature diagnosed earlier in T-M4.14's main run, but
+        # this time the connection never returned *anything*, not even a
+        # 503). Without a client-side timeout, nothing bounds that wait.
+        self._client = genai.Client(
+            api_key=settings.gemini.api_key.get_secret_value(),
+            http_options=types.HttpOptions(timeout=60_000),
+        )
 
     def generate_text(self, prompt: str, *, system: str | None = None, temperature: float = 0.7) -> str:
         config = types.GenerateContentConfig(system_instruction=system, temperature=temperature)
